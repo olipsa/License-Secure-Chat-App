@@ -81,8 +81,8 @@ void main() {
 
     var messages = await sut.findMessages('11');
 
-    expect(messages.length, 1);
-    expect(messages.first.chatId, '11');
+    expect(messages?.length, 1);
+    expect(messages?.first?.chatId, '11');
     verify(database.query(
       'messages',
       where: anyNamed('where'),

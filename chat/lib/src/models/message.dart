@@ -3,8 +3,8 @@ import 'package:rethink_db_ns/rethink_db_ns.dart';
 
 class Message {
   String? get id => _id;
-  final String? from;
-  final String? to;
+  final String from;
+  final String to;
   final DateTime timestamp;
   final String contents;
   String? _id;

@@ -32,7 +32,7 @@ void main() {
 
   test('sent receipt successfully', () async {
     Receipt receipt = Receipt(
-        recipient: 'Matei',
+        recipient: 'Ondina',
         messageId: '1231',
         status: ReceiptStatus.delivered,
         timestamp: DateTime.now());

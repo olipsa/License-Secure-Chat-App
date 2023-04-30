@@ -46,6 +46,8 @@ class SqfliteDatasource implements IDataSource {
       AND messages.created_at = latest_messages.created_at
     ''');
 
+      if (chatsWithLatestMessage.isEmpty) return [];
+
       final chatsWithUnreadMessage = await txn.rawQuery(''' 
     SELECT chat_id, count(*) as unread
     FROM messages
@@ -54,7 +56,7 @@ class SqfliteDatasource implements IDataSource {
     ''', ['delivered']);
 
       return chatsWithLatestMessage.map<Chat>((row) {
-        final int? unread = int.tryParse(chatsWithLatestMessage
+        final int? unread = int.tryParse(chatsWithUnreadMessage
             .firstWhere((element) => row['chat_id'] == element['chat_id'],
                 orElse: () => {'unread': 0})['unread']
             .toString());
@@ -68,10 +70,12 @@ class SqfliteDatasource implements IDataSource {
   }
 
   @override
-  Future<Chat> findChat(String chatId) async {
+  Future<Chat?> findChat(String chatId) async {
     return _db.transaction((txn) async {
       final listOfChatMaps =
           await txn.query('chats', where: 'id = ?', whereArgs: [chatId]);
+
+      if (listOfChatMaps.isEmpty) return null;
 
       final unread = Sqflite.firstIntValue(await txn.rawQuery(
           'SELECT COUNT(*) FROM messages WHERE chat_id = ? AND receipt = ?',
@@ -90,7 +94,7 @@ class SqfliteDatasource implements IDataSource {
   }
 
   @override
-  Future<List<LocalMessage>> findMessages(String chatId) async {
+  Future<List<LocalMessage?>> findMessages(String chatId) async {
     final listOfMaps =
         await _db.query('messages', where: 'chat_id = ?', whereArgs: [chatId]);
     return listOfMaps

@@ -34,7 +34,7 @@ void main() {
   });
 
   final user2 = User.fromJson({
-    'username': 'Matei',
+    'username': 'Ondina',
     'photoUrl': "https",
     'id': '1235',
     'active': true,
