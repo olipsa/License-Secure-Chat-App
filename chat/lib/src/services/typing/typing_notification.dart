@@ -26,8 +26,8 @@ class TypingNotification implements ITypingNotification {
   }
 
   @override
-  Stream<TypingEvent> subscribe(User user, List<String> userIds) {
-    _startReceivingTypingEvents(user, userIds);
+  Stream<TypingEvent> subscribe(User user, List<String>? userIds) {
+    _startReceivingTypingEvents(user, userIds!);
     return _controller.stream;
   }
 
