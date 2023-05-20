@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:chat/chat.dart';
 
 class LocalMessage {
-  String chatId;
+  String? chatId;
   String get id => _id;
   late String _id;
   Message message;

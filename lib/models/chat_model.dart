@@ -2,7 +2,7 @@
 import 'package:flutter_chat_app/models/local_message.dart';
 
 class Chat {
-  String id;
+  String? id;
   int unread = 0;
   List<LocalMessage>? messageList = [];
   LocalMessage? mostRecent;

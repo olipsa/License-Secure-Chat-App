@@ -16,11 +16,11 @@ abstract class BaseViewModel {
     await _datasource.addMessage(message);
   }
 
-  Future<bool> _isExistingChat(String chatId) async {
+  Future<bool> _isExistingChat(String? chatId) async {
     return await _datasource.findChat(chatId) != null;
   }
 
-  Future<void> _createNewChat(String chatId) async {
+  Future<void> _createNewChat(String? chatId) async {
     final chat = Chat(chatId);
     await _datasource.addChat(chat);
   }

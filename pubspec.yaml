@@ -28,7 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  bloc: ^7.0.0
+  bloc: ^7.1.0
   build_runner: ^2.3.3
   chat:
     path: ./chat
@@ -40,6 +40,8 @@ dependencies:
   google_fonts: ^4.0.4
   http: ^0.13.5
   image_picker: ^0.8.7+4
+  path_provider: ^2.0.15
+  rethink_db_ns: ^0.0.4
   shared_preferences: ^2.1.0
   sqflite: ^2.2.7
 

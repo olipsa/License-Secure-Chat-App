@@ -70,7 +70,7 @@ class SqfliteDatasource implements IDataSource {
   }
 
   @override
-  Future<Chat?> findChat(String chatId) async {
+  Future<Chat?> findChat(String? chatId) async {
     return _db.transaction((txn) async {
       final listOfChatMaps =
           await txn.query('chats', where: 'id = ?', whereArgs: [chatId]);

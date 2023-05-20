@@ -13,11 +13,11 @@ extension TypingParser on Typing {
 }
 
 class TypingEvent {
-  String get id => _id;
-  final String from;
-  final String to;
+  String? get id => _id;
+  final String? from;
+  final String? to;
   final Typing event;
-  late String _id;
+  String? _id;
   TypingEvent({required this.from, required this.to, required this.event});
 
   Map<String, dynamic> toJson() => {

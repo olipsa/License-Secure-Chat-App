@@ -26,8 +26,8 @@ class TypingNotification implements ITypingNotification {
   }
 
   @override
-  Stream<TypingEvent> subscribe(User user, List<String>? userIds) {
-    _startReceivingTypingEvents(user, userIds!);
+  Stream<TypingEvent> subscribe(User user, List<String?> userIds) {
+    _startReceivingTypingEvents(user, userIds);
     return _controller.stream;
   }
 
@@ -37,7 +37,7 @@ class TypingNotification implements ITypingNotification {
     _controller.close();
   }
 
-  _startReceivingTypingEvents(User user, List<String> userIds) {
+  _startReceivingTypingEvents(User user, List<String?> userIds) {
     _changefeed = _r
         .table('typing_events')
         .filter((event) {

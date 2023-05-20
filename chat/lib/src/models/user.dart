@@ -2,10 +2,10 @@
 import 'package:flutter/foundation.dart';
 
 class User {
-  String get id => _id;
+  String? get id => _id;
   String username;
-  String photoUrl;
-  String _id = 'null';
+  String? photoUrl;
+  String? _id;
   bool active;
   DateTime lastseen;
 

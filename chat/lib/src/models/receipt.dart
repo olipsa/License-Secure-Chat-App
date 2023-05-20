@@ -12,12 +12,12 @@ extension EnumParsing on ReceiptStatus {
 }
 
 class Receipt {
-  final String recipient;
-  final String messageId;
+  final String? recipient;
+  final String? messageId;
   final ReceiptStatus status;
-  final DateTime timestamp;
-  String _id = '';
-  String get id => _id;
+  final DateTime? timestamp;
+  String? _id;
+  String? get id => _id;
 
   Receipt({
     required this.recipient,

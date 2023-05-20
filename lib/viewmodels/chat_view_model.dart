@@ -10,8 +10,8 @@ class ChatViewModel extends BaseViewModel {
 
   ChatViewModel(this._dataSource) : super(_dataSource);
 
-  Future<List<LocalMessage?>> getMessages(String chatId) async {
-    final messages = await _dataSource.findMessages(chatId);
+  Future<List<LocalMessage?>> getMessages(String? chatId) async {
+    final messages = await _dataSource.findMessages(chatId!);
     if (messages.isNotEmpty) _chatId = chatId;
     return messages;
   }
@@ -23,7 +23,7 @@ class ChatViewModel extends BaseViewModel {
       //it's an already existing chat
       return await _dataSource.addMessage(localMessage);
     }
-    _chatId = localMessage.chatId;
+    _chatId = localMessage.chatId!;
     await addMessage(localMessage);
   }
 
