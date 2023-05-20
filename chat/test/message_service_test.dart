@@ -17,7 +17,7 @@ void main() {
     connection = await r.connect();
     final encryption = EncryptionService(Encrypter(AES(Key.fromLength(32))));
     await createDb(r, connection!);
-    messageService = MessageService(r, connection!, encryption);
+    messageService = MessageService(r, connection!, encryption: encryption);
   });
 
   tearDown(() async {

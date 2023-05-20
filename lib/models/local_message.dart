@@ -20,18 +20,21 @@ class LocalMessage {
     return <String, dynamic>{
       'chat_id': chatId,
       'id': message.id,
-      ...message
-          .toJson(), //explodes all the fields from message json into this map
-      'receipt': receipt.value()
+      'sender': message.from,
+      'receiver': message.to,
+      'contents': message.contents,
+      'receipt': receipt.value(),
+      'received_at': message.timestamp.toString()
     };
   }
 
   factory LocalMessage.fromMap(Map<String, dynamic> json) {
     final message = Message(
-        from: json['from'],
-        to: json['to'],
-        timestamp: json['timestamp'],
+        from: json['sender'],
+        to: json['receiver'],
+        timestamp: DateTime.parse(json['received_at']),
         contents: json['contents']);
+
     final localMessage = LocalMessage(
         chatId: json['chat_id'],
         message: message,

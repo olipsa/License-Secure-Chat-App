@@ -44,6 +44,7 @@ class SqfliteDatasource implements IDataSource {
       INNER JOIN messages
       ON messages.chat_id = latest_messages.chat_id
       AND messages.created_at = latest_messages.created_at
+      ORDER BY messages.created_at DESC
     ''');
 
       if (chatsWithLatestMessage.isEmpty) return [];
@@ -61,7 +62,7 @@ class SqfliteDatasource implements IDataSource {
                 orElse: () => {'unread': 0})['unread']
             .toString());
 
-        final chat = Chat.fromMap(row);
+        final chat = Chat.fromMap({"id": row['chat_id']});
         chat.unread = unread!;
         chat.mostRecent = LocalMessage.fromMap(row);
         return chat;

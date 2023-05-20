@@ -17,12 +17,12 @@ void main() {
   });
 
   tearDown(() async {
-    await cleanDb(r, connection!);
+    //await cleanDb(r, connection!);
   });
 
   test('creates a new user in db', () async {
     final user = User(
-        username: 'test',
+        username: 'ondina',
         photoUrl: 'url',
         active: true,
         lastseen: DateTime.now());
