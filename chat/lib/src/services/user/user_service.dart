@@ -30,7 +30,7 @@ class UserService implements IUserService {
     await r.table('users').update({
       'id': user.id,
       'active': false,
-      'last_seen': DateTime.now()
+      'lastseen': DateTime.now()
     }).run(_connection!);
     _connection?.close();
   }

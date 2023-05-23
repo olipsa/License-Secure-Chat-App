@@ -10,30 +10,25 @@ import 'package:flutter_chat_app/ui/widgets/home/chats/chats.dart';
 import 'package:flutter_chat_app/ui/widgets/home/profile_image.dart';
 
 class Home extends StatefulWidget {
-  const Home();
+  final User me;
+  const Home(this.me);
 
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
+  late User _user;
   @override
   void initState() {
     super.initState();
-    context.read<ChatsCubit>().chats();
-    context.read<HomeCubit>().activeUsers();
-    final user = User.fromJson({
-      "username": "ondina",
-      "id": 'ac0cc396-c695-4569-9a85-83b09a1c569b',
-      "active": true,
-      "photo_url": "url",
-      "lastseen": DateTime.now()
-    });
-    context.read<MessageBloc>().add(MessageEvent.onSubscribed(user));
+    _user = widget.me;
+    _initialSetup();
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -42,16 +37,15 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
             width: double.maxFinite,
             child: Row(
               children: [
-                const ProfileImage(
-                  imageUrl:
-                      "https://wallpapers.com/images/featured-full/cool-profile-picture-87h46gcobjl5e4xu.jpg",
+                ProfileImage(
+                  imageUrl: _user.photoUrl,
                   online: true,
                 ),
                 Column(
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(left: 8.0),
-                      child: Text('Ondina',
+                      child: Text(_user.username,
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall
@@ -98,11 +92,21 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
           ),
         ),
         body: TabBarView(children: [
-          Chats(),
+          Chats(_user),
           ActiveUsers(),
         ]),
       ),
     );
+  }
+
+  _initialSetup() async {
+    // if user disconnected from the phone
+    final user =
+        (!_user.active) ? await context.read<HomeCubit>().connect() : _user;
+
+    context.read<ChatsCubit>().chats();
+    context.read<HomeCubit>().activeUsers(user);
+    context.read<MessageBloc>().add(MessageEvent.onSubscribed(_user));
   }
 
   @override

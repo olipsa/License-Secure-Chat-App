@@ -14,10 +14,10 @@ class Loading extends OnboardingState {
 }
 
 class OnboardingSuccess extends OnboardingState {
-  final User _user;
+  final User user;
 
-  OnboardingSuccess(this._user);
+  OnboardingSuccess(this.user);
 
   @override
-  List<Object?> get props => [_user];
+  List<Object?> get props => [user];
 }

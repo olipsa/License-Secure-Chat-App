@@ -7,7 +7,7 @@ class User {
   String? photoUrl;
   String? _id;
   bool active;
-  DateTime lastseen;
+  DateTime? lastseen;
 
   User({
     required this.username,

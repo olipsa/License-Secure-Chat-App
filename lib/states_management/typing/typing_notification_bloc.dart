@@ -19,7 +19,7 @@ class TypingNotificationBloc
   Stream<TypingNotificationState> mapEventToState(
       TypingNotificationEvent typingEvent) async* {
     if (typingEvent is Subscribed) {
-      if (typingEvent.usersWithChat == null) {
+      if (typingEvent.usersWithChat == []) {
         //to save memory
         add(NotSubscribed());
         return;
@@ -35,13 +35,7 @@ class TypingNotificationBloc
       yield TypingNotificationState.received(typingEvent.event);
     }
     if (typingEvent is TypingNotificationSent) {
-      await _typingNotification.send(
-          event: typingEvent.event,
-          to: User(
-              username: 'username',
-              photoUrl: 'photoUrl',
-              active: true,
-              lastseen: DateTime.now()));
+      await _typingNotification.send(event: typingEvent.event);
       yield TypingNotificationState.sent();
     }
 

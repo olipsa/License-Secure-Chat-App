@@ -15,7 +15,7 @@ class ReceiptService implements IReceiptService {
 
   @override
   dispose() {
-    //_changefeed!.cancel();
+    _changefeed?.cancel();
     _controller.close();
   }
 
@@ -46,6 +46,7 @@ class ReceiptService implements IReceiptService {
                 if (feedData['new_val'] == null) return; // no new messages
 
                 final receipt = _receiptFromFeed(feedData);
+                _removeDeliveredReceipt(receipt);
                 _controller.sink.add(
                     receipt); //receipt added to the stream so that client can receive it
               })
@@ -57,5 +58,12 @@ class ReceiptService implements IReceiptService {
   Receipt _receiptFromFeed(feedData) {
     var data = feedData['new_val'];
     return Receipt.fromJson(data);
+  }
+
+  _removeDeliveredReceipt(Receipt receipt) {
+    r
+        .table('receipts')
+        .get(receipt.id)
+        .delete({'return_changes': false}).run(_connection);
   }
 }

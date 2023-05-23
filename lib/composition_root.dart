@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:chat/chat.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_chat_app/cache/local_cache.dart';
 import 'package:flutter_chat_app/data/datasource/datasource_contract.dart';
 import 'package:flutter_chat_app/data/datasource/sqflite_datasource.dart';
 import 'package:flutter_chat_app/data/factories/db_factory.dart';
@@ -12,10 +11,13 @@ import 'package:flutter_chat_app/states_management/home/home_cubit.dart';
 import 'package:flutter_chat_app/states_management/message/message_bloc.dart';
 import 'package:flutter_chat_app/states_management/onboarding/onboarding_cubit.dart';
 import 'package:flutter_chat_app/states_management/onboarding/profile_image_cubit.dart';
+import 'package:flutter_chat_app/states_management/typing/typing_notification_bloc.dart';
 import 'package:flutter_chat_app/ui/pages/home/home.dart';
 import 'package:flutter_chat_app/ui/pages/onboarding/onboarding.dart';
+import 'package:flutter_chat_app/ui/pages/onboarding/onboarding_router.dart';
 import 'package:flutter_chat_app/viewmodels/chats_view_model.dart';
 import 'package:rethink_db_ns/rethink_db_ns.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 class CompositionRoot {
@@ -25,44 +27,62 @@ class CompositionRoot {
   static late Database _db;
   static late IMessageService _messageService;
   static late IDataSource _datasource;
+  static late ILocalCache _localCache;
+  static late MessageBloc _messageBloc;
+  static late ITypingNotification _typingNotification;
+  static late TypingNotificationBloc _typingNotificationBloc;
 
   static configure() async {
     _r = RethinkDb();
     _connection = await _r.connect(host: '172.23.0.1', port: 28015);
     _userService = UserService(r: _r, connection: _connection);
     _messageService = MessageService(_r, _connection);
+    _typingNotification = TypingNotification(_r, _connection, _userService);
     _db = await LocalDatabaseFactory().createDatabase();
     _datasource = SqfliteDatasource(_db);
+    final sharedPref = await SharedPreferences.getInstance();
+    _localCache = LocalCache(sharedPref);
+    _messageBloc = MessageBloc(_messageService);
+    _typingNotificationBloc = TypingNotificationBloc(_typingNotification);
     // _db.delete('chats');
     // _db.delete('messages');
+  }
+
+  static Widget start() {
+    // _localCache.remove('USER');
+    final user = _localCache.fetch('USER');
+    return user.isEmpty
+        ? composeOnboardingUi()
+        : composeHomeUi(User.fromJson(user));
   }
 
   static Widget composeOnboardingUi() {
     ImageUploader imageUploader =
         ImageUploader('http://172.23.0.1:3000/upload');
     OnboardingCubit onboardingCubit =
-        OnboardingCubit(_userService, imageUploader);
+        OnboardingCubit(_userService, imageUploader, _localCache);
     ProfileImageCubit imageCubit = ProfileImageCubit();
+    IOnboardingRouter router = OnboardingRouter(composeHomeUi);
 
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (BuildContext context) => onboardingCubit),
         BlocProvider(create: (BuildContext context) => imageCubit)
       ],
-      child: const Onboarding(),
+      child: Onboarding(router),
     );
   }
 
-  static Widget composeHomeUi() {
-    HomeCubit homeCubit = HomeCubit(_userService);
-    MessageBloc messageBloc = MessageBloc(_messageService);
+  static Widget composeHomeUi(User me) {
+    HomeCubit homeCubit = HomeCubit(_userService, _localCache);
     ChatsViewModel viewModel = ChatsViewModel(_datasource, _userService);
     ChatsCubit chatsCubit = ChatsCubit(viewModel);
 
     return MultiBlocProvider(providers: [
       BlocProvider(create: (BuildContext context) => homeCubit),
-      BlocProvider(create: (BuildContext context) => messageBloc),
+      BlocProvider(create: (BuildContext context) => _messageBloc),
+      BlocProvider(create: (BuildContext context) => _typingNotificationBloc),
       BlocProvider(create: (BuildContext context) => chatsCubit)
-    ], child: Home());
+    ], child: Home(me));
   }
 }

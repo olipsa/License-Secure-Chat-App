@@ -14,7 +14,7 @@ void main() {
   setUp(() async {
     connection = await r.connect();
     await createDb(r, connection!);
-    sut = TypingNotification(r, connection!);
+    sut = TypingNotification(r, connection!, null);
   });
 
   tearDown(() async {
@@ -40,7 +40,7 @@ void main() {
   test('sent typing notif successfully', () async {
     TypingEvent typingEvent =
         TypingEvent(from: user2.id, to: user.id, event: Typing.start);
-    final res = await sut?.send(event: typingEvent, to: user);
+    final res = await sut?.send(event: typingEvent);
     expect(res, true);
   });
 
@@ -55,7 +55,7 @@ void main() {
     TypingEvent stopTyping =
         TypingEvent(from: user.id, to: user2.id, event: Typing.stop);
 
-    await sut?.send(event: startTyping, to: user2);
-    await sut?.send(event: stopTyping, to: user2);
+    await sut?.send(event: startTyping);
+    await sut?.send(event: stopTyping);
   });
 }

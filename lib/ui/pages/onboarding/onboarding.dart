@@ -4,13 +4,15 @@ import 'package:flutter_chat_app/colors.dart';
 import 'package:flutter_chat_app/states_management/onboarding/onboarding_cubit.dart';
 import 'package:flutter_chat_app/states_management/onboarding/onboarding_state.dart';
 import 'package:flutter_chat_app/states_management/onboarding/profile_image_cubit.dart';
+import 'package:flutter_chat_app/ui/pages/onboarding/onboarding_router.dart';
 
 import '../../widgets/onboarding/logo.dart';
 import '../../widgets/onboarding/profile_upload.dart';
 import '../../widgets/shared/custom_text_field.dart';
 
 class Onboarding extends StatefulWidget {
-  const Onboarding({super.key});
+  final IOnboardingRouter router;
+  const Onboarding(this.router);
 
   @override
   State<Onboarding> createState() => _OnboardingState();
@@ -78,10 +80,17 @@ class _OnboardingState extends State<Onboarding> {
                   )),
             ),
             const Spacer(flex: 3),
-            BlocBuilder<OnboardingCubit, OnboardingState>(
-                builder: (context, state) => state is Loading
-                    ? const Center(child: CircularProgressIndicator())
-                    : Container()),
+            BlocConsumer<OnboardingCubit, OnboardingState>(
+              builder: (context, state) => state is Loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : Container(),
+              listener: (_, state) {
+                if (state is OnboardingSuccess) {
+                  widget.router.onSessionSuccess(
+                      context, state.user); // route to the home screen of the user that just onboarded
+                }
+              },
+            ),
             Spacer(flex: 1)
           ]),
         ),

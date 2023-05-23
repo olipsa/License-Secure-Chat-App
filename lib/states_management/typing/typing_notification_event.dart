@@ -3,7 +3,7 @@ part of 'typing_notification_bloc.dart';
 abstract class TypingNotificationEvent extends Equatable {
   const TypingNotificationEvent();
   factory TypingNotificationEvent.onSubscribed(User user,
-          {required List<String> usersWithChat}) =>
+          {required List<String?> usersWithChat}) =>
       Subscribed(user, usersWithChat: usersWithChat);
   factory TypingNotificationEvent.onTypingEventSent(TypingEvent event) =>
       TypingNotificationSent(event);
@@ -15,7 +15,7 @@ abstract class TypingNotificationEvent extends Equatable {
 class Subscribed extends TypingNotificationEvent {
   //used whenever client subscribes to receive Receipts
   final User user;
-  final List<String> usersWithChat;
+  final List<String?> usersWithChat;
   const Subscribed(this.user, {required this.usersWithChat});
 
   @override
