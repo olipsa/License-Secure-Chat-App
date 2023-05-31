@@ -4,6 +4,7 @@ import 'package:sqflite/sqflite.dart';
 class LocalDatabaseFactory {
   Future<Database> createDatabase() async {
     String databasesPath = await getDatabasesPath();
+    print(databasesPath);
     String dbPath = join(databasesPath, 'secure_messenger.db');
 
     //create database tables

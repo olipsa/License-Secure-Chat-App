@@ -14,6 +14,8 @@ import 'package:flutter_chat_app/states_management/message_thread/message_thread
 import 'package:flutter_chat_app/states_management/receipt/receipt_bloc.dart';
 import 'package:flutter_chat_app/states_management/typing/typing_notification_bloc.dart';
 import 'package:flutter_chat_app/theme.dart';
+import 'package:flutter_chat_app/ui/widgets/message_thread/receiver_message.dart';
+import 'package:flutter_chat_app/ui/widgets/message_thread/sender_message.dart';
 import 'package:flutter_chat_app/ui/widgets/shared/header_status.dart';
 
 class MessageThread extends StatefulWidget {
@@ -38,8 +40,8 @@ class _MessageThreadState extends State<MessageThread> {
   late User receiver;
   late StreamSubscription _subscription;
   List<LocalMessage> messages = [];
-  late Timer _startTypingTimer;
-  late Timer _stopTypingTimer;
+  Timer? _startTypingTimer;
+  Timer? _stopTypingTimer;
 
   @override
   void initState() {
@@ -71,11 +73,24 @@ class _MessageThreadState extends State<MessageThread> {
             },
           ),
           Expanded(
-              child: HeaderStatus(
-            receiver.username,
-            receiver.photoUrl,
-            receiver.active,
-            lastSeen: receiver.lastseen,
+              child:
+                  BlocBuilder<TypingNotificationBloc, TypingNotificationState>(
+            bloc: widget.typingNotificationBloc,
+            builder: (_, state) {
+              bool? typing;
+              if (state is TypingNotificationReceivedSuccess &&
+                  state.event.event == Typing.start &&
+                  state.event.from == receiver.id) {
+                typing = true;
+              }
+              return HeaderStatus(
+                receiver.username,
+                receiver.photoUrl,
+                receiver.active,
+                lastSeen: receiver.lastseen,
+                typing: typing,
+              );
+            },
           ))
         ]),
       ),
@@ -88,7 +103,17 @@ class _MessageThreadState extends State<MessageThread> {
           children: [
             Flexible(
               flex: 6,
-              child: Container(),
+              child: BlocBuilder<MessageThreadCubit, List<LocalMessage>>(
+                  builder: (__, messages) {
+                this.messages = messages;
+                if (this.messages.isEmpty)
+                  return Container(
+                    color: Colors.transparent,
+                  );
+                WidgetsBinding.instance.addPostFrameCallback((_) =>
+                    _scrollToTheEnd()); // runs the method when the list view is rendered
+                return _buildListOfMessages();
+              }),
             ),
             Expanded(
               child: Container(
@@ -123,7 +148,9 @@ class _MessageThreadState extends State<MessageThread> {
                               Icons.send,
                               color: Colors.white,
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                              _sendMessage();
+                            },
                           ),
                         ),
                       )
@@ -138,6 +165,29 @@ class _MessageThreadState extends State<MessageThread> {
     );
   }
 
+  _buildListOfMessages() => ListView.builder(
+        padding: EdgeInsets.only(top: 16, left: 16.0, bottom: 20),
+        itemBuilder: (__, idx) {
+          if (messages[idx].message.from == receiver.id) {
+            _sendReceipt(messages[idx]);
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: ReceiverMessage(messages[idx], receiver.photoUrl),
+            );
+          } else {
+            //message from sender
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: SenderMessage(messages[idx]),
+            );
+          }
+        },
+        itemCount: messages.length,
+        controller: _scrollController,
+        physics: AlwaysScrollableScrollPhysics(),
+        addAutomaticKeepAlives: true,
+      );
+
   _buildMessageInput(BuildContext context) {
     final _border = OutlineInputBorder(
         borderRadius: BorderRadius.all(Radius.circular(90.0)),
@@ -145,7 +195,14 @@ class _MessageThreadState extends State<MessageThread> {
             ? BorderSide.none
             : BorderSide(color: Colors.grey.withOpacity(0.3)));
     return Focus(
-      onFocusChange: (focus) {},
+      onFocusChange: (focus) {
+        // stop typing
+        if (_startTypingTimer == null || (_startTypingTimer != null && focus)) {
+          return;
+        }
+        _stopTypingTimer?.cancel();
+        _dispatchTyping(Typing.stop);
+      },
       child: TextFormField(
         controller: _textEditingController,
         textInputAction: TextInputAction.newline,
@@ -153,7 +210,7 @@ class _MessageThreadState extends State<MessageThread> {
         maxLines: null,
         style: Theme.of(context).textTheme.bodySmall,
         cursorColor: kPrimary,
-        onChanged: (val) {},
+        onChanged: _sendTypingNotification,
         decoration: InputDecoration(
             contentPadding:
                 EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
@@ -201,12 +258,69 @@ class _MessageThreadState extends State<MessageThread> {
     });
   }
 
+  _sendMessage() {
+    if (_textEditingController.text.trim().isEmpty) return;
+
+    final message = Message(
+        from: widget.me.id,
+        to: receiver.id,
+        timestamp: DateTime.now(),
+        contents: _textEditingController.text);
+    final sendMessageEvent = MessageEvent.onMessageSent(message);
+    widget.messageBloc.add(sendMessageEvent);
+
+    _textEditingController.clear();
+    _startTypingTimer?.cancel();
+    _stopTypingTimer?.cancel();
+
+    _dispatchTyping(Typing.stop);
+  }
+
+  void _dispatchTyping(Typing event) {
+    // creates the typing event and send it
+    final typing =
+        TypingEvent(from: widget.me.id, to: receiver.id, event: event);
+    widget.typingNotificationBloc
+        .add(TypingNotificationEvent.onTypingEventSent(typing));
+  }
+
+  void _sendTypingNotification(String text) {
+    if (text.trim().isEmpty || messages.isEmpty) return;
+    if (_startTypingTimer?.isActive ?? false) return;
+    if (_stopTypingTimer?.isActive ?? false) _stopTypingTimer?.cancel();
+    _dispatchTyping(Typing.start);
+    _startTypingTimer = Timer(Duration(seconds: 5), () {});
+    // after 1s of sending the typing notification, the typing message will stop
+    _stopTypingTimer =
+        Timer(Duration(seconds: 6), () => _dispatchTyping(Typing.stop));
+  }
+
+  _scrollToTheEnd() {
+    _scrollController.animateTo(_scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 200), curve: Curves.easeInOut);
+  }
+
+  _sendReceipt(LocalMessage message) async {
+    // updates the local db with the correct state of the message
+    if (message.receipt == ReceiptStatus.read) return;
+    final receipt = Receipt(
+        recipient: message.message.from,
+        messageId: message.id,
+        status: ReceiptStatus.read,
+        timestamp: DateTime.now());
+    context.read<ReceiptBloc>().add(ReceiptEvent.onMessageSent(receipt));
+    await context
+        .read<MessageThreadCubit>()
+        .viewModel
+        .updateMessageReceipt(receipt);
+  }
+
   @override
   void dispose() {
     _textEditingController.dispose();
     _subscription.cancel();
-    _stopTypingTimer.cancel();
-    _startTypingTimer.cancel();
+    _stopTypingTimer?.cancel();
+    _startTypingTimer?.cancel();
     super.dispose();
   }
 }

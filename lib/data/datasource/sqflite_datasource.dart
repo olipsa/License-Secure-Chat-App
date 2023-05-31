@@ -95,13 +95,14 @@ class SqfliteDatasource implements IDataSource {
           limit: 1);
       final chat = Chat.fromMap(listOfChatMaps.first);
       chat.unread = unread!;
-      chat.mostRecent = LocalMessage.fromMap(mostRecentMessage.first);
+      if (mostRecentMessage.isNotEmpty)
+        chat.mostRecent = LocalMessage.fromMap(mostRecentMessage.first);
       return chat;
     });
   }
 
   @override
-  Future<List<LocalMessage?>> findMessages(String chatId) async {
+  Future<List<LocalMessage>> findMessages(String chatId) async {
     final listOfMaps =
         await _db.query('messages', where: 'chat_id = ?', whereArgs: [chatId]);
     return listOfMaps

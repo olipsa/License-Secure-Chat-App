@@ -51,6 +51,10 @@ class _ChatsState extends State<Chats> {
                 await widget.router.onShowMessageThread(
                     context, chats[index].from, widget.user,
                     chatId: chats[index].id);
+
+                await context
+                    .read<ChatsCubit>()
+                    .chats(); // update unread message count
               },
             ),
         separatorBuilder: (_, __) => Divider(),

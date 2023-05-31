@@ -9,7 +9,7 @@ abstract class IDataSource {
   Future<Chat?> findChat(String? chatId);
   Future<List<Chat>> findAllChats();
   Future<void> updateMessage(LocalMessage message);
-  Future<List<LocalMessage?>> findMessages(String chatId);
+  Future<List<LocalMessage>> findMessages(String chatId);
   Future<void> deleteChat(String chatId);
   Future<void> updateMessageReceipt(String? messageId, ReceiptStatus status);
 }
