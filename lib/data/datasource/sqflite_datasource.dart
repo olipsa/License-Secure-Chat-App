@@ -118,7 +118,7 @@ class SqfliteDatasource implements IDataSource {
   }
 
   @override
-  Future<void> updateMessageReceipt(String messageId, ReceiptStatus status) {
+  Future<void> updateMessageReceipt(String? messageId, ReceiptStatus status) {
     return _db.transaction((txn) async {
       await txn.update('messages', {'receipt': status.value()},
           where: 'id = ?',

@@ -11,5 +11,5 @@ abstract class IDataSource {
   Future<void> updateMessage(LocalMessage message);
   Future<List<LocalMessage?>> findMessages(String chatId);
   Future<void> deleteChat(String chatId);
-  Future<void> updateMessageReceipt(String messageId, ReceiptStatus status);
+  Future<void> updateMessageReceipt(String? messageId, ReceiptStatus status);
 }

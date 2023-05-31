@@ -3,7 +3,7 @@ part of 'receipt_bloc.dart';
 abstract class ReceiptEvent extends Equatable {
   const ReceiptEvent();
   factory ReceiptEvent.onSubscribed(User user) => Subscribed(user);
-  factory ReceiptEvent.onReceiptSent(Receipt receipt) => ReceiptSent(receipt);
+  factory ReceiptEvent.onMessageSent(Receipt receipt) => ReceiptSent(receipt);
 
   @override
   List<Object?> get props => [];

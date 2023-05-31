@@ -7,12 +7,14 @@ import 'package:flutter_chat_app/states_management/home/chats_cubit.dart';
 import 'package:flutter_chat_app/states_management/message/message_bloc.dart';
 import 'package:flutter_chat_app/states_management/typing/typing_notification_bloc.dart';
 import 'package:flutter_chat_app/theme.dart';
+import 'package:flutter_chat_app/ui/pages/home/home_router.dart';
 import 'package:flutter_chat_app/ui/widgets/home/profile_image.dart';
 import 'package:intl/intl.dart';
 
 class Chats extends StatefulWidget {
   final User user;
-  const Chats(this.user);
+  final IHomeRouter router;
+  const Chats(this.user, this.router);
 
   @override
   State<Chats> createState() => _ChatsState();
@@ -43,7 +45,14 @@ class _ChatsState extends State<Chats> {
   _buildListView() {
     return ListView.separated(
         padding: EdgeInsets.only(top: 15.0, right: 16.0),
-        itemBuilder: (_, index) => _chatItem(chats[index]),
+        itemBuilder: (_, index) => GestureDetector(
+              child: _chatItem(chats[index]),
+              onTap: () async {
+                await widget.router.onShowMessageThread(
+                    context, chats[index].from, widget.user,
+                    chatId: chats[index].id);
+              },
+            ),
         separatorBuilder: (_, __) => Divider(),
         itemCount: chats.length);
   }
