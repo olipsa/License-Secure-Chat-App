@@ -90,7 +90,7 @@ class CompositionRoot {
       BlocProvider(create: (BuildContext context) => _messageBloc),
       BlocProvider(create: (BuildContext context) => _typingNotificationBloc),
       BlocProvider(create: (BuildContext context) => _chatsCubit)
-    ], child: Home(me, router));
+    ], child: Home(me, router, _userService));
   }
 
   static Widget composeMessageThreadUi(User receiver, User me,

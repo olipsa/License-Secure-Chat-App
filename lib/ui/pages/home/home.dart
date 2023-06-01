@@ -14,18 +14,23 @@ import 'package:flutter_chat_app/ui/widgets/shared/header_status.dart';
 class Home extends StatefulWidget {
   final User me;
   final IHomeRouter router;
-  const Home(this.me, this.router);
+  final IUserService userService;
+  const Home(this.me, this.router, this.userService);
 
   @override
   State<Home> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
+class _HomeState extends State<Home>
+    with AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
   late User _user;
+  late IUserService _userService;
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
     _user = widget.me;
+    _userService = widget.userService;
     _initialSetup();
   }
 
@@ -86,4 +91,40 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
 
   @override
   bool get wantKeepAlive => true;
+
+  @override
+  void dispose() {
+    super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        // in the foreground; responding to user
+        print('App resumed');
+        _user.lastseen = DateTime.now();
+        _user.active = true;
+        await _userService.connect(_user);
+        break;
+      case AppLifecycleState.paused:
+        // app minimized; not visible, no response, in the background
+        print('App paused');
+        _user.lastseen = DateTime.now();
+        _user.active = false;
+        await _userService.update(_user);
+        break;
+      case AppLifecycleState.inactive:
+        // in foreground, no response / in split screen view
+        print('App inactive');
+        break;
+      case AppLifecycleState.detached:
+        // not visible / being created or destroyed
+        print('App detached');
+        break;
+      default:
+        break;
+    }
+  }
 }

@@ -48,4 +48,13 @@ class UserService implements IUserService {
     final user = await r.table('users').get(id).run(_connection!);
     return User.fromJson(user);
   }
+
+  @override
+  Future<void> update(User user) async {
+    await r.table('users').update({
+      'id': user.id,
+      'active': user.active,
+      'lastseen': user.lastseen
+    }).run(_connection!);
+  }
 }
