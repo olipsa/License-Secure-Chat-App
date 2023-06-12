@@ -87,7 +87,9 @@ class _OnboardingState extends State<Onboarding> {
               listener: (_, state) {
                 if (state is OnboardingSuccess) {
                   widget.router.onSessionSuccess(
-                      context, state.user); // route to the home screen of the user that just onboarded
+                      // route to the home screen of the user that just onboarded
+                      context,
+                      state.user);
                 }
               },
             ),

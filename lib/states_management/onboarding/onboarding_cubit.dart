@@ -27,6 +27,11 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       'id': createdUser.id
     };
     await _localCache.save('USER', userJson);
+
+    await EncryptedUser.initEncryptedUser(createdUser.id);
+    EncryptedUser.createPreKeyBundle();
+    await _userService.storeKeys(createdUser.id, EncryptedUser.preKeyBundle);
+
     emit(OnboardingSuccess(createdUser));
   }
 }

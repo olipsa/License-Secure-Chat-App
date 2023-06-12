@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:chat/src/services/user/user_service_contract.dart';
 import 'package:chat/src/models/user.dart';
+import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
 import 'package:rethink_db_ns/rethink_db_ns.dart';
 
 class UserService implements IUserService {
@@ -55,6 +56,25 @@ class UserService implements IUserService {
       'id': user.id,
       'active': user.active,
       'lastseen': user.lastseen
+    }).run(_connection!);
+  }
+
+  @override
+  Future<void> storeKeys(String? userId, PreKeyBundle preKeyBundle) async {
+    ECPublicKey? publicPreKey = preKeyBundle.getPreKey();
+    List<int> preKeyPublic = publicPreKey!.serialize();
+    final result = await r.table('public_keys').insert({
+      'user_id': userId,
+      'registrationId': preKeyBundle.getRegistrationId(),
+      'deviceId': preKeyBundle.getDeviceId(),
+      'preKeyId': preKeyBundle.getPreKeyId(),
+      'preKeyPublic': preKeyBundle.getPreKey()!.serialize(),
+      'signedPreKeyId': preKeyBundle.getSignedPreKeyId(),
+      'signedPreKeyPublic': preKeyBundle.getSignedPreKey()!.serialize(),
+      'signedPreKeySignature': preKeyBundle.getSignedPreKeySignature(),
+      'identityKey': preKeyBundle.getIdentityKey().serialize()
+    }, {
+      'conflict': 'update',
     }).run(_connection!);
   }
 }

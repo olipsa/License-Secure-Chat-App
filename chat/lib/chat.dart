@@ -4,6 +4,7 @@ export 'package:chat/src/models/message.dart';
 export 'package:chat/src/models/receipt.dart';
 export 'package:chat/src/models/user.dart';
 export 'package:chat/src/models/typing_event.dart';
+export 'package:chat/src/models/encrypted_user.dart';
 export 'package:chat/src/services/encryption/encryption_contract.dart';
 export 'package:chat/src/services/encryption/encryption_service.dart';
 export 'package:chat/src/services/message/message_service.dart';

@@ -5,7 +5,7 @@ class Message {
   final String? from;
   final String? to;
   final DateTime timestamp;
-  final String contents;
+  String contents;
   String? _id;
 
   Message({

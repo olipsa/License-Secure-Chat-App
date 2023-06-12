@@ -32,6 +32,7 @@ server/node_modules
 .pub-cache/
 .pub/
 /build/
+server/images/profile
 
 # Symbolication related
 app.*.symbols
