@@ -7,23 +7,30 @@ class Message {
   final DateTime timestamp;
   String contents;
   String? _id;
+  int? type;
 
-  Message({
-    required this.from,
-    required this.to,
-    required this.timestamp,
-    required this.contents,
-  });
+  Message(
+      {required this.from,
+      required this.to,
+      required this.timestamp,
+      required this.contents,
+      this.type});
 
-  toJson() =>
-      {'from': from, 'to': to, 'timestamp': timestamp, 'contents': contents};
+  toJson() => {
+        'from': from,
+        'to': to,
+        'timestamp': timestamp,
+        'contents': contents,
+        'type': type
+      };
 
   factory Message.fromJson(Map<String, dynamic> json) {
     var message = Message(
         from: json['from'],
         to: json['to'],
         timestamp: json['timestamp'],
-        contents: json['contents']);
+        contents: json['contents'],
+        type: json['type']);
     message._id = json['id'];
     return message;
   }

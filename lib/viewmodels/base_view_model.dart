@@ -1,18 +1,22 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_chat_app/data/datasource/datasource_contract.dart';
+import 'package:flutter_chat_app/data/services/local_encryption_service.dart';
 import 'package:flutter_chat_app/models/chat_model.dart';
 import 'package:flutter_chat_app/models/local_message.dart';
 
 abstract class BaseViewModel {
   IDataSource _datasource;
+  LocalEncryptionService _encryptionService;
 
-  BaseViewModel(this._datasource);
+  BaseViewModel(this._datasource, this._encryptionService);
 
   @protected
   Future<void> addMessage(LocalMessage message) async {
+    // adds new received and sent messages to the local db
     if (!await _isExistingChat(message.chatId)) {
       await _createNewChat(message.chatId);
     }
+    // tbd: encrypt the message first
     await _datasource.addMessage(message);
   }
 

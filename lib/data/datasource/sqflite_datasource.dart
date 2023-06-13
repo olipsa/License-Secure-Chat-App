@@ -15,7 +15,7 @@ class SqfliteDatasource implements IDataSource {
     //use transaction to avoid deadlocks
     await _db.transaction((txn) async {
       await txn.insert('chats', chat.toMap(),
-          conflictAlgorithm: ConflictAlgorithm.rollback);
+          conflictAlgorithm: ConflictAlgorithm.replace);
     });
   }
 

@@ -6,6 +6,8 @@ import 'package:flutter_chat_app/data/datasource/datasource_contract.dart';
 import 'package:flutter_chat_app/data/datasource/sqflite_datasource.dart';
 import 'package:flutter_chat_app/data/factories/db_factory.dart';
 import 'package:flutter_chat_app/data/services/image_uploader.dart';
+import 'package:flutter_chat_app/data/services/local_encryption_service.dart';
+import 'package:flutter_chat_app/models/encrypted_user.dart';
 import 'package:flutter_chat_app/states_management/home/chats_cubit.dart';
 import 'package:flutter_chat_app/states_management/home/home_cubit.dart';
 import 'package:flutter_chat_app/states_management/message/message_bloc.dart';
@@ -37,6 +39,9 @@ class CompositionRoot {
   static late ITypingNotification _typingNotification;
   static late TypingNotificationBloc _typingNotificationBloc;
   static late ChatsCubit _chatsCubit;
+  static late EncryptedUser _encryptedUser;
+  static late IRemoteEncryptionService _remoteEncryptionService;
+  static late LocalEncryptionService _localEncryptionService;
 
   static configure() async {
     _r = RethinkDb();
@@ -48,9 +53,14 @@ class CompositionRoot {
     _datasource = SqfliteDatasource(_db);
     final sharedPref = await SharedPreferences.getInstance();
     _localCache = LocalCache(sharedPref);
-    _messageBloc = MessageBloc(_messageService);
+    _encryptedUser = EncryptedUser();
+    _remoteEncryptionService = RemoteEncryptionService(_r, _connection);
+    _localEncryptionService =
+        LocalEncryptionService(_remoteEncryptionService, _encryptedUser);
+    _messageBloc = MessageBloc(_messageService, _localEncryptionService);
     _typingNotificationBloc = TypingNotificationBloc(_typingNotification);
-    final viewModel = ChatsViewModel(_datasource, _userService);
+    final viewModel =
+        ChatsViewModel(_datasource, _userService, _localEncryptionService);
     _chatsCubit = ChatsCubit(viewModel);
     // _db.delete('chats');
     // _db.delete('messages');
@@ -67,8 +77,8 @@ class CompositionRoot {
   static Widget composeOnboardingUi() {
     ImageUploader imageUploader =
         ImageUploader('http://172.23.0.1:3000/upload');
-    OnboardingCubit onboardingCubit =
-        OnboardingCubit(_userService, imageUploader, _localCache);
+    OnboardingCubit onboardingCubit = OnboardingCubit(_userService,
+        imageUploader, _localCache, _remoteEncryptionService, _encryptedUser);
     ProfileImageCubit imageCubit = ProfileImageCubit();
     IOnboardingRouter router = OnboardingRouter(composeHomeUi);
 
@@ -95,7 +105,8 @@ class CompositionRoot {
 
   static Widget composeMessageThreadUi(User receiver, User me,
       {String? chatId}) {
-    ChatViewModel viewModel = ChatViewModel(_datasource);
+    ChatViewModel viewModel =
+        ChatViewModel(_datasource, _localEncryptionService);
     MessageThreadCubit messageThreadCubit = MessageThreadCubit(viewModel);
     IReceiptService receiptService = ReceiptService(_r, _connection);
     ReceiptBloc receiptBloc = ReceiptBloc(receiptService);

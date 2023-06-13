@@ -58,23 +58,4 @@ class UserService implements IUserService {
       'lastseen': user.lastseen
     }).run(_connection!);
   }
-
-  @override
-  Future<void> storeKeys(String? userId, PreKeyBundle preKeyBundle) async {
-    ECPublicKey? publicPreKey = preKeyBundle.getPreKey();
-    List<int> preKeyPublic = publicPreKey!.serialize();
-    final result = await r.table('public_keys').insert({
-      'user_id': userId,
-      'registrationId': preKeyBundle.getRegistrationId(),
-      'deviceId': preKeyBundle.getDeviceId(),
-      'preKeyId': preKeyBundle.getPreKeyId(),
-      'preKeyPublic': preKeyBundle.getPreKey()!.serialize(),
-      'signedPreKeyId': preKeyBundle.getSignedPreKeyId(),
-      'signedPreKeyPublic': preKeyBundle.getSignedPreKey()!.serialize(),
-      'signedPreKeySignature': preKeyBundle.getSignedPreKeySignature(),
-      'identityKey': preKeyBundle.getIdentityKey().serialize()
-    }, {
-      'conflict': 'update',
-    }).run(_connection!);
-  }
 }

@@ -10,6 +10,7 @@ class MessageThreadCubit extends Cubit<List<LocalMessage>> {
 
   Future<void> messages(String? chatId) async {
     final messages = await viewModel.getMessages(chatId);
+    // tbd: decrypt all messages
     emit(messages);
   }
 }

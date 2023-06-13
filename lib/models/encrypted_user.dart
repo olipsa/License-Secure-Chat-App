@@ -5,23 +5,21 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
 
 class EncryptedUser {
-  static late IdentityKeyPair identityKeyPair;
-  static late int registrationId;
-  static late int deviceId;
-  static late InMemoryIdentityKeyStore identityKeyStore;
-  static late InMemoryPreKeyStore preKeyStore;
-  static late InMemorySignedPreKeyStore signedPreKeyStore;
-  static late InMemorySessionStore sessionStore; // tbd
+  late IdentityKeyPair identityKeyPair;
+  late int registrationId;
+  late int deviceId;
+  late InMemoryIdentityKeyStore identityKeyStore;
+  late InMemoryPreKeyStore preKeyStore;
+  late InMemorySignedPreKeyStore signedPreKeyStore;
+  late InMemorySessionStore sessionStore;
 
-  static late List<PreKeyRecord> preKeys;
-  static late SignedPreKeyRecord signedPreKey;
-  static late PreKeyBundle preKeyBundle;
-  static late SignalProtocolAddress signalProtocolAddress;
-  static late SessionBuilder sessionBuilder;
+  late List<PreKeyRecord> preKeys;
+  late SignedPreKeyRecord signedPreKey;
+  late PreKeyBundle preKeyBundle;
 
   EncryptedUser();
 
-  static Future<void> initEncryptedUser(String? userId) async {
+  Future<void> initEncryptedUser(String? userId) async {
     identityKeyPair = generateIdentityKeyPair();
     registrationId = generateRegistrationId(false);
     identityKeyStore =
@@ -29,14 +27,13 @@ class EncryptedUser {
 
     String? deviceIdString = await _getDeviceId();
     deviceId = int.parse(deviceIdString!.replaceAll(RegExp(r'[^\d]'), ''));
-    signalProtocolAddress = SignalProtocolAddress(userId!, deviceId);
 
     preKeyStore = InMemoryPreKeyStore();
     signedPreKeyStore = InMemorySignedPreKeyStore();
     sessionStore = InMemorySessionStore();
   }
 
-  static Future<String?> _getDeviceId() async {
+  Future<String?> _getDeviceId() async {
     var deviceInfo = DeviceInfoPlugin();
     if (Platform.isIOS) {
       var iosDeviceInfo = await deviceInfo.iosInfo;
@@ -47,7 +44,7 @@ class EncryptedUser {
     }
   }
 
-  static createPreKeyBundle() {
+  createPreKeyBundle() {
     // one-time pre-keys -> OTPKs
     int preKeyId = 0;
     preKeys = generatePreKeys(preKeyId, 110);

@@ -6,6 +6,5 @@ import '../../models/user.dart';
 abstract class IMessageService {
   Future<Message> send(Message message);
   Stream<Message> messages({required User activeUser});
-  Future<PreKeyBundle> retrievePreKeyBundle(String? userId);
   dispose();
 }

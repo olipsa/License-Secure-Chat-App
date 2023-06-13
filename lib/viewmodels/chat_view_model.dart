@@ -1,15 +1,18 @@
 import 'package:chat/chat.dart';
 import 'package:flutter_chat_app/data/datasource/datasource_contract.dart';
+import 'package:flutter_chat_app/data/services/local_encryption_service.dart';
 import 'package:flutter_chat_app/models/local_message.dart';
 import 'package:flutter_chat_app/viewmodels/base_view_model.dart';
 
 class ChatViewModel extends BaseViewModel {
   IDataSource _dataSource;
+  LocalEncryptionService _encryptionService;
   String? _chatId = '';
   int otherMessages = 0;
   String? get chatId => _chatId;
 
-  ChatViewModel(this._dataSource) : super(_dataSource);
+  ChatViewModel(this._dataSource, this._encryptionService)
+      : super(_dataSource, _encryptionService);
 
   Future<List<LocalMessage>> getMessages(String? chatId) async {
     final messages = await _dataSource.findMessages(chatId!);
