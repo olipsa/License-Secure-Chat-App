@@ -8,10 +8,10 @@ class FlashlightButton extends StatefulWidget {
   const FlashlightButton(this._cameraController, {super.key});
 
   @override
-  _FlashlightButtonState createState() => _FlashlightButtonState();
+  FlashlightButtonState createState() => FlashlightButtonState();
 }
 
-class _FlashlightButtonState extends State<FlashlightButton> {
+class FlashlightButtonState extends State<FlashlightButton> {
   bool _isFlashlightOn = false;
 
   @override

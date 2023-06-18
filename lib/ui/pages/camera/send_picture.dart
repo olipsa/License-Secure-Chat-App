@@ -34,44 +34,49 @@ class _SendPictureState extends State<SendPicture> {
     var receiverUsername = widget.receiver.username;
     return Scaffold(
       appBar: AppBar(title: Text("Send to $receiverUsername")),
-      body: Column(
-        children: [
-          Expanded(
-              child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: Image.file(File(widget.imagePath)))),
-          SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            physics: const BouncingScrollPhysics(),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(child: _buildMessageInput(context)),
-                Padding(
-                  padding: const EdgeInsets.only(left: 12.0),
-                  child: Container(
-                    height: 45.0,
-                    width: 45.0,
-                    child: RawMaterialButton(
-                      fillColor: kPrimary,
-                      shape: const CircleBorder(),
-                      elevation: 5.0,
-                      child: const Icon(
-                        Icons.send,
-                        color: Colors.white,
+      body: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).requestFocus(FocusNode());
+          },
+          child: Column(
+            children: [
+              Expanded(
+                  child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: Image.file(File(widget.imagePath)))),
+              SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                physics: const BouncingScrollPhysics(),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(child: _buildMessageInput(context)),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        margin: const EdgeInsets.all(8.0),
+                        height: 45.0,
+                        width: 45.0,
+                        child: RawMaterialButton(
+                          fillColor: kPrimary,
+                          shape: const CircleBorder(),
+                          elevation: 5.0,
+                          child: const Icon(
+                            Icons.send,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            _sendImage();
+                          },
+                        ),
                       ),
-                      onPressed: () {
-                        _sendImage();
-                      },
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
-        ],
-      ),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          )),
     );
   }
 
@@ -83,26 +88,29 @@ class _SendPictureState extends State<SendPicture> {
             : BorderSide(color: Colors.grey.withOpacity(0.3)));
     return Focus(
         onFocusChange: (focus) {},
-        child: TextFormField(
-          controller: _textEditingController,
-          textInputAction: TextInputAction.newline,
-          keyboardType: TextInputType.multiline,
-          maxLines: null,
-          style: Theme.of(context).textTheme.bodySmall,
-          cursorColor: kPrimary,
-          decoration: InputDecoration(
-              contentPadding:
-                  const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
-              enabledBorder: border,
-              filled: true,
-              fillColor: isLightTheme(context)
-                  ? kPrimary.withOpacity(0.1)
-                  : kBubbleDark,
-              focusedBorder: border,
-              hintText: 'Add a description',
-              hintStyle: isLightTheme(context)
-                  ? const TextStyle(color: Colors.black)
-                  : const TextStyle(color: Colors.grey)),
+        child: Container(
+          margin: const EdgeInsets.all(8.0),
+          child: TextFormField(
+            controller: _textEditingController,
+            textInputAction: TextInputAction.newline,
+            keyboardType: TextInputType.multiline,
+            maxLines: null,
+            style: Theme.of(context).textTheme.bodySmall,
+            cursorColor: kPrimary,
+            decoration: InputDecoration(
+                contentPadding:
+                    const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
+                enabledBorder: border,
+                filled: true,
+                fillColor: isLightTheme(context)
+                    ? kPrimary.withOpacity(0.1)
+                    : kBubbleDark,
+                focusedBorder: border,
+                hintText: 'Add a description',
+                hintStyle: isLightTheme(context)
+                    ? const TextStyle(color: Colors.black)
+                    : const TextStyle(color: Colors.grey)),
+          ),
         ));
   }
 
@@ -119,8 +127,10 @@ class _SendPictureState extends State<SendPicture> {
     final sendMessageEvent = MessageEvent.onMessageSent(message);
     widget.messageBloc.add(sendMessageEvent);
     _textEditingController.clear();
-    widget.router.onShowMessageThread(context, widget.receiver, widget.me,
-        chatId: widget.chatId);
+    // widget.router.onShowMessageThread(context, widget.receiver, widget.me,
+    //     chatId: widget.chatId);
+    Navigator.pop(context);
+    Navigator.pop(context);
   }
 
   @override

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:chat/chat.dart';
+import 'package:flutter_chat_app/theme.dart';
 import 'package:flutter_chat_app/ui/pages/message_thread/message_thread_router.dart';
 import 'package:flutter_chat_app/ui/pages/camera/flashlight_button.dart';
 import 'package:image/image.dart' as img;
@@ -8,18 +9,17 @@ import 'package:image/image.dart' as img;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_app/colors.dart';
-
-typedef CameraResourceCallback = void Function(bool release);
+import 'package:image_picker/image_picker.dart';
 
 class CameraScreen extends StatefulWidget {
-  late CameraResourceCallback? cameraResourceCallback;
   final CameraDescription camera;
   final User me;
   final User receiver;
-  String? chatId;
+  final String? chatId;
   final IMessageThreadRouter router;
 
-  CameraScreen(this.camera, this.me, this.receiver, this.router, this.chatId,
+  const CameraScreen(
+      this.camera, this.me, this.receiver, this.router, this.chatId,
       {super.key});
 
   @override
@@ -29,6 +29,7 @@ class CameraScreen extends StatefulWidget {
 class _CameraScreenState extends State<CameraScreen> {
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
+  bool _isImageCapturing = false;
   String? _photoPath;
 
   @override
@@ -75,7 +76,6 @@ class _CameraScreenState extends State<CameraScreen> {
 
     if (_controller.value.description.lensDirection ==
         CameraLensDirection.front) {
-      print('Currently using front camera.');
       orientedImage = img.flipHorizontal(originalImage!);
       final orientedBytes = img.encodeJpg(orientedImage, quality: 90);
       final orientedFile =
@@ -83,9 +83,7 @@ class _CameraScreenState extends State<CameraScreen> {
 
       return orientedFile.path;
     } else if (_controller.value.description.lensDirection ==
-        CameraLensDirection.back) {
-      print('Currently using back camera.');
-    }
+        CameraLensDirection.back) {}
     return originalFile.path;
   }
 
@@ -102,6 +100,7 @@ class _CameraScreenState extends State<CameraScreen> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           return Scaffold(
+            backgroundColor: Colors.transparent,
             appBar: AppBar(
               actions: [
                 FlashlightButton(_controller),
@@ -109,10 +108,16 @@ class _CameraScreenState extends State<CameraScreen> {
             ),
             body: AspectRatio(
               aspectRatio: 8.6 / 15,
-              child: CameraPreview(_controller),
+              child: _controller.value.isInitialized
+                  ? CameraPreview(_controller)
+                  : Container(), // Placeholder widget when camera is not available
             ),
-            floatingActionButton: Padding(
-              padding: const EdgeInsets.only(bottom: 16),
+            floatingActionButton: Container(
+              decoration: BoxDecoration(
+                  color: isLightTheme(context)
+                      ? kPrimary.withOpacity(0.1)
+                      : kBubbleDark),
+              padding: const EdgeInsets.all(15),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -121,31 +126,19 @@ class _CameraScreenState extends State<CameraScreen> {
                     backgroundColor: kPrimary,
                     child: const Icon(Icons.photo_library_rounded),
                     onPressed: () {
-                      // Take a photo or perform any other camera-related action
+                      _openGallery();
                     },
                   ),
                   FloatingActionButton(
                     heroTag: 'button_camera',
                     backgroundColor: kPrimary,
-                    child: const Icon(Icons.camera),
+                    child: _isImageCapturing
+                        ? const CircularProgressIndicator(
+                            color: Colors.black,
+                          )
+                        : const Icon(Icons.camera),
                     onPressed: () async {
-                      try {
-                        await _initializeControllerFuture;
-                        final image = await _controller.takePicture();
-                        final flippedImagePath =
-                            await _flipImageIfNeeded(image.path);
-                        setState(() {
-                          _photoPath = flippedImagePath;
-                        });
-                      } catch (e) {
-                        print(e);
-                      }
-                      if (_photoPath != null) {
-                        widget.router.onShowPicturePreview(
-                            context, widget.receiver, widget.me, _photoPath,
-                            chatId: widget.chatId);
-                        print("No photo has been taken yet");
-                      }
+                      if (!_isImageCapturing) _captureImage();
                     },
                   ),
                   FloatingActionButton(
@@ -167,5 +160,43 @@ class _CameraScreenState extends State<CameraScreen> {
         }
       },
     );
+  }
+
+  void _openGallery() async {
+    final pickedImage =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedImage != null) {
+      widget.router.onShowPicturePreview(
+          context, widget.receiver, widget.me, pickedImage.path,
+          chatId: widget.chatId);
+    }
+  }
+
+  void _captureImage() async {
+    setState(() {
+      _isImageCapturing = true;
+    });
+
+    try {
+      final image = await _controller.takePicture();
+      final flippedImagePath = await _flipImageIfNeeded(image.path);
+
+      // Process the captured image
+      setState(() {
+        _isImageCapturing = false;
+        _photoPath = flippedImagePath;
+      });
+    } catch (e) {
+      // Handle any errors that occur during image capture
+
+      setState(() {
+        _isImageCapturing = false;
+      });
+    }
+    if (_photoPath != null) {
+      widget.router.onShowPicturePreview(
+          context, widget.receiver, widget.me, _photoPath,
+          chatId: widget.chatId);
+    }
   }
 }

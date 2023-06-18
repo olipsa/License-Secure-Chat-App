@@ -17,29 +17,28 @@ class TypingNotificationBloc
 
   @override
   Stream<TypingNotificationState> mapEventToState(
-      TypingNotificationEvent typingEvent) async* {
-    if (typingEvent is Subscribed) {
-      if (typingEvent.usersWithChat == []) {
+      TypingNotificationEvent event) async* {
+    if (event is Subscribed) {
+      if (event.usersWithChat == []) {
         //to save memory
         add(NotSubscribed());
         return;
       }
       await _subscription?.cancel();
       _subscription = _typingNotification
-          .subscribe(typingEvent.user, typingEvent.usersWithChat)
-          .listen(
-              (typingEvent) => add(_TypingNotificationReceived(typingEvent)));
+          .subscribe(event.user, event.usersWithChat)
+          .listen((event) => add(_TypingNotificationReceived(event)));
     }
 
-    if (typingEvent is _TypingNotificationReceived) {
-      yield TypingNotificationState.received(typingEvent.event);
+    if (event is _TypingNotificationReceived) {
+      yield TypingNotificationState.received(event.event);
     }
-    if (typingEvent is TypingNotificationSent) {
-      await _typingNotification.send(event: typingEvent.event);
+    if (event is TypingNotificationSent) {
+      await _typingNotification.send(event: event.event);
       yield TypingNotificationState.sent();
     }
 
-    if (typingEvent is NotSubscribed) {
+    if (event is NotSubscribed) {
       yield TypingNotificationState.initial();
     }
   }
