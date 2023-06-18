@@ -19,8 +19,10 @@ import 'package:flutter_chat_app/states_management/typing/typing_notification_bl
 import 'package:flutter_chat_app/ui/pages/home/home.dart';
 import 'package:flutter_chat_app/ui/pages/home/home_router.dart';
 import 'package:flutter_chat_app/ui/pages/message_thread/message_thread.dart';
+import 'package:flutter_chat_app/ui/pages/message_thread/message_thread_router.dart';
 import 'package:flutter_chat_app/ui/pages/onboarding/onboarding.dart';
 import 'package:flutter_chat_app/ui/pages/onboarding/onboarding_router.dart';
+import 'package:flutter_chat_app/ui/pages/camera/send_picture.dart';
 import 'package:flutter_chat_app/viewmodels/chat_view_model.dart';
 import 'package:flutter_chat_app/viewmodels/chats_view_model.dart';
 import 'package:rethink_db_ns/rethink_db_ns.dart';
@@ -45,7 +47,7 @@ class CompositionRoot {
 
   static configure() async {
     _r = RethinkDb();
-    _connection = await _r.connect(host: '172.23.0.1', port: 28015);
+    _connection = await _r.connect(host: '192.168.1.31', port: 28015);
     _userService = UserService(r: _r, connection: _connection);
     _messageService = MessageService(_r, _connection);
     _typingNotification = TypingNotification(_r, _connection, _userService);
@@ -62,12 +64,12 @@ class CompositionRoot {
     final viewModel =
         ChatsViewModel(_datasource, _userService, _localEncryptionService);
     _chatsCubit = ChatsCubit(viewModel);
-    // _db.delete('chats');
-    // _db.delete('messages');
+    _db.delete('chats');
+    _db.delete('messages');
   }
 
   static Widget start() {
-    // _localCache.remove('USER');
+    _localCache.remove('USER');
     final user = _localCache.fetch('USER');
     return user.isEmpty
         ? composeOnboardingUi()
@@ -76,7 +78,7 @@ class CompositionRoot {
 
   static Widget composeOnboardingUi() {
     ImageUploader imageUploader =
-        ImageUploader('http://172.23.0.1:3000/upload');
+        ImageUploader('http://192.168.1.31:3000/upload');
     OnboardingCubit onboardingCubit = OnboardingCubit(_userService,
         imageUploader, _localCache, _remoteEncryptionService, _encryptedUser);
     ProfileImageCubit imageCubit = ProfileImageCubit();
@@ -110,14 +112,36 @@ class CompositionRoot {
     MessageThreadCubit messageThreadCubit = MessageThreadCubit(viewModel);
     IReceiptService receiptService = ReceiptService(_r, _connection);
     ReceiptBloc receiptBloc = ReceiptBloc(receiptService);
+    IMessageThreadRouter router = MessageThreadRouter(
+        showMessageThread: composeMessageThreadUi,
+        showPicturePreview: composePicturePreviewUi);
 
     return MultiBlocProvider(
         providers: [
           BlocProvider(create: (BuildContext context) => messageThreadCubit),
           BlocProvider(create: (BuildContext context) => receiptBloc)
         ],
-        child: MessageThread(
-            receiver, me, _messageBloc, _chatsCubit, _typingNotificationBloc,
+        child: MessageThread(receiver, me, _messageBloc, _chatsCubit,
+            _typingNotificationBloc, router,
             chatId: chatId));
+  }
+
+  static Widget composePicturePreviewUi(
+      User receiver, User me, String? imagePath,
+      {String? chatId}) {
+    ChatViewModel viewModel =
+        ChatViewModel(_datasource, _localEncryptionService);
+    MessageThreadCubit messageThreadCubit = MessageThreadCubit(viewModel);
+
+    IMessageThreadRouter router = MessageThreadRouter(
+        showMessageThread: composeMessageThreadUi,
+        showPicturePreview: composePicturePreviewUi);
+
+    return MultiBlocProvider(
+        providers: [
+          BlocProvider(create: (BuildContext context) => messageThreadCubit)
+        ],
+        child: SendPicture(
+            imagePath!, me, receiver, _messageBloc, router, chatId));
   }
 }

@@ -38,12 +38,13 @@ class _OnboardingState extends State<Onboarding> {
             Padding(
               padding: const EdgeInsets.only(left: 20.0, right: 20.0),
               child: CustomTextField(
-                  hint: 'What\'s your name?',
-                  height: 45.0,
-                  onchanged: (val) {
-                    _username = val;
-                  },
-                  inputAction: TextInputAction.done),
+                hint: 'What\'s your name?',
+                height: 45.0,
+                onchanged: (val) {
+                  _username = val;
+                },
+                inputAction: TextInputAction.done,
+              ),
             ),
             const SizedBox(height: 30.0),
             Padding(

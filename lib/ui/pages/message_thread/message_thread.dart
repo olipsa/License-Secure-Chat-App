@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
 
+import 'package:camera/camera.dart';
 import 'package:chat/chat.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,10 +11,11 @@ import 'package:flutter_chat_app/models/local_message.dart';
 import 'package:flutter_chat_app/states_management/home/chats_cubit.dart';
 import 'package:flutter_chat_app/states_management/message/message_bloc.dart';
 import 'package:flutter_chat_app/states_management/message_thread/message_thread_cubit.dart';
-import 'package:flutter_chat_app/states_management/message_thread/message_thread_cubit.dart';
 import 'package:flutter_chat_app/states_management/receipt/receipt_bloc.dart';
 import 'package:flutter_chat_app/states_management/typing/typing_notification_bloc.dart';
 import 'package:flutter_chat_app/theme.dart';
+import 'package:flutter_chat_app/ui/pages/camera/camera_screen.dart';
+import 'package:flutter_chat_app/ui/pages/message_thread/message_thread_router.dart';
 import 'package:flutter_chat_app/ui/widgets/message_thread/receiver_message.dart';
 import 'package:flutter_chat_app/ui/widgets/message_thread/sender_message.dart';
 import 'package:flutter_chat_app/ui/widgets/shared/header_status.dart';
@@ -25,8 +27,9 @@ class MessageThread extends StatefulWidget {
   final MessageBloc messageBloc;
   final TypingNotificationBloc typingNotificationBloc;
   final ChatsCubit chatsCubit;
+  final IMessageThreadRouter router;
   const MessageThread(this.receiver, this.me, this.messageBloc, this.chatsCubit,
-      this.typingNotificationBloc,
+      this.typingNotificationBloc, this.router,
       {this.chatId = ''});
 
   @override
@@ -137,21 +140,45 @@ class _MessageThreadState extends State<MessageThread> {
                       Expanded(child: _buildMessageInput(context)),
                       Padding(
                         padding: const EdgeInsets.only(left: 12.0),
-                        child: Container(
-                          height: 45.0,
-                          width: 45.0,
-                          child: RawMaterialButton(
-                            fillColor: kPrimary,
-                            shape: new CircleBorder(),
-                            elevation: 5.0,
-                            child: Icon(
-                              Icons.send,
-                              color: Colors.white,
+                        child: Row(
+                          children: [
+                            Container(
+                              // send image/video container
+                              height: 45.0,
+                              width: 45.0,
+                              child: RawMaterialButton(
+                                fillColor: kPrimary,
+                                shape: CircleBorder(),
+                                elevation: 5.0,
+                                child: Icon(
+                                  Icons.camera_alt_rounded,
+                                  color: Colors.white,
+                                ),
+                                onPressed: () {
+                                  _openCamera();
+                                  // Handle camera button press
+                                },
+                              ),
                             ),
-                            onPressed: () {
-                              _sendMessage();
-                            },
-                          ),
+                            SizedBox(width: 8.0),
+                            Container(
+                              // send button container
+                              height: 45.0,
+                              width: 45.0,
+                              child: RawMaterialButton(
+                                fillColor: kPrimary,
+                                shape: new CircleBorder(),
+                                elevation: 5.0,
+                                child: Icon(
+                                  Icons.send,
+                                  color: Colors.white,
+                                ),
+                                onPressed: () {
+                                  _sendMessage();
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                       )
                     ],
@@ -189,7 +216,7 @@ class _MessageThreadState extends State<MessageThread> {
       );
 
   _buildMessageInput(BuildContext context) {
-    final _border = OutlineInputBorder(
+    final border = OutlineInputBorder(
         borderRadius: BorderRadius.all(Radius.circular(90.0)),
         borderSide: isLightTheme(context)
             ? BorderSide.none
@@ -214,11 +241,11 @@ class _MessageThreadState extends State<MessageThread> {
         decoration: InputDecoration(
             contentPadding:
                 EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
-            enabledBorder: _border,
+            enabledBorder: border,
             filled: true,
             fillColor:
                 isLightTheme(context) ? kPrimary.withOpacity(0.1) : kBubbleDark,
-            focusedBorder: _border),
+            focusedBorder: border),
       ),
     );
   }
@@ -265,7 +292,8 @@ class _MessageThreadState extends State<MessageThread> {
         from: widget.me.id,
         to: receiver.id,
         timestamp: DateTime.now(),
-        contents: _textEditingController.text);
+        contents: _textEditingController.text,
+        contentType: ContentType.text);
     final sendMessageEvent = MessageEvent.onMessageSent(message);
     widget.messageBloc.add(sendMessageEvent);
 
@@ -282,6 +310,18 @@ class _MessageThreadState extends State<MessageThread> {
         TypingEvent(from: widget.me.id, to: receiver.id, event: event);
     widget.typingNotificationBloc
         .add(TypingNotificationEvent.onTypingEventSent(typing));
+  }
+
+  void _openCamera() async {
+    final cameras = await availableCameras(); // Get the available cameras
+    final camera = cameras.first; // Select the first available camera
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) =>
+              CameraScreen(camera, widget.me, receiver, widget.router, chatId)),
+    );
   }
 
   void _sendTypingNotification(String text) {

@@ -40,7 +40,9 @@ class LocalDatabaseFactory {
             contents TEXT NOT NULL,
             receipt TEXT NOT NULL,
             received_at TIMESTAMP NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            content_type TEXT NOT NULL,
+            file_path TEXT
             )
       """)
         .then((_) => print('creating table messages'))

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:chat/chat.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_app/colors.dart';
@@ -21,23 +23,7 @@ class SenderMessage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: kPrimary,
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  position: DecorationPosition.background,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24.0, vertical: 12.0),
-                    child: Text(_message.message.contents.trim(),
-                        softWrap: true,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(height: 1.2, color: Colors.white)),
-                  ),
-                ),
+                _buildMessageContent(context, _message.message),
                 // message timestamp:
                 Padding(
                   padding: const EdgeInsets.only(top: 12.0, left: 12.0),
@@ -79,5 +65,55 @@ class SenderMessage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildMessageContent(BuildContext context, Message message) {
+    if (message.contentType == ContentType.text) {
+      return DecoratedBox(
+        decoration: BoxDecoration(
+          color: kPrimary,
+          borderRadius: BorderRadius.circular(30),
+        ),
+        position: DecorationPosition.background,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+          child: Text(message.contents.trim(),
+              softWrap: true,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  height: 1.2,
+                  color: isLightTheme(context) ? Colors.black : Colors.white)),
+        ),
+      );
+    } else if (message.contentType == ContentType.image) {
+      File imageFile = File(message.filePath!);
+      return DecoratedBox(
+          decoration: BoxDecoration(
+            color: kPrimary,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          position: DecorationPosition.background,
+          child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.file(imageFile,
+                          width: 150, height: 150, fit: BoxFit.cover)),
+                  if (message.contents.trim().isNotEmpty) SizedBox(height: 8),
+                  if (message.contents.trim().isNotEmpty)
+                    Text(message.contents.trim(),
+                        softWrap: true,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            height: 1.2,
+                            color: isLightTheme(context)
+                                ? Colors.black
+                                : Colors.white)),
+                ],
+              )));
+    } else {
+      return SizedBox.shrink();
+    }
   }
 }

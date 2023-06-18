@@ -9,13 +9,12 @@ class CustomTextField extends StatelessWidget {
   final double height;
   final TextInputAction inputAction;
 
-  const CustomTextField({
-    Key? key,
-    required this.hint,
-    required this.onchanged,
-    this.height = 54.0,
-    required this.inputAction,
-  });
+  const CustomTextField(
+      {Key? key,
+      required this.hint,
+      required this.onchanged,
+      this.height = 54.0,
+      required this.inputAction});
 
   @override
   Widget build(BuildContext context) {
@@ -33,12 +32,19 @@ class CustomTextField extends StatelessWidget {
           keyboardType: TextInputType.text,
           onChanged: onchanged,
           textInputAction: inputAction,
+          style: isLightTheme(context)
+              ? TextStyle(color: Colors.black)
+              : TextStyle(color: Colors.white),
           cursorColor: kPrimary,
           decoration: InputDecoration(
-              contentPadding:
-                  EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
-              hintText: hint,
-              border: InputBorder.none),
+            contentPadding:
+                EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
+            hintText: hint,
+            hintStyle: isLightTheme(context)
+                ? TextStyle(color: Colors.black)
+                : TextStyle(color: Colors.grey),
+            border: InputBorder.none,
+          ),
         ));
   }
 }

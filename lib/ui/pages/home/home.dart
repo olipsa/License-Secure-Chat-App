@@ -1,6 +1,7 @@
 import 'package:chat/chat.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_chat_app/colors.dart';
 import 'package:flutter_chat_app/states_management/home/chats_cubit.dart';
 import 'package:flutter_chat_app/states_management/home/home_cubit.dart';
 import 'package:flutter_chat_app/states_management/home/home_state.dart';
@@ -8,7 +9,6 @@ import 'package:flutter_chat_app/states_management/message/message_bloc.dart';
 import 'package:flutter_chat_app/ui/pages/home/home_router.dart';
 import 'package:flutter_chat_app/ui/widgets/home/active/active_users.dart';
 import 'package:flutter_chat_app/ui/widgets/home/chats/chats.dart';
-import 'package:flutter_chat_app/ui/widgets/home/profile_image.dart';
 import 'package:flutter_chat_app/ui/widgets/shared/header_status.dart';
 
 class Home extends StatefulWidget {
@@ -47,8 +47,9 @@ class _HomeState extends State<Home>
             tabs: [
               Tab(
                 child: Container(
-                  decoration:
-                      BoxDecoration(borderRadius: BorderRadius.circular(50)),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(50),
+                  ),
                   child: const Align(
                     alignment: Alignment.center,
                     child: Text('Messages'),
@@ -57,8 +58,9 @@ class _HomeState extends State<Home>
               ),
               Tab(
                 child: Container(
-                  decoration:
-                      BoxDecoration(borderRadius: BorderRadius.circular(50)),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(50),
+                  ),
                   child: Align(
                     alignment: Alignment.center,
                     child: BlocBuilder<HomeCubit, HomeState>(

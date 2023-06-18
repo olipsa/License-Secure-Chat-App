@@ -61,4 +61,15 @@ class RemoteEncryptionService implements IRemoteEncryptionService {
     }).toList();
     return keyList;
   }
+
+  @override
+  Future<int> retrieveDeviceId(String userId) async {
+    final cursor = await _r
+        .table('public_keys')
+        .filter({'user_id': userId}).run(_connection);
+    var records = await cursor.toList();
+    var foundKey = records[0];
+    int deviceId = foundKey['deviceId'];
+    return deviceId;
+  }
 }

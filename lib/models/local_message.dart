@@ -24,7 +24,9 @@ class LocalMessage {
       'receiver': message.to,
       'contents': message.contents,
       'receipt': receipt.value(),
-      'received_at': message.timestamp.toString()
+      'received_at': message.timestamp.toString(),
+      'content_type': message.contentType.value(),
+      'file_path': message.filePath
     };
   }
 
@@ -33,7 +35,9 @@ class LocalMessage {
         from: json['sender'],
         to: json['receiver'],
         timestamp: DateTime.parse(json['received_at']),
-        contents: json['contents']);
+        contents: json['contents'],
+        contentType: ContentTypeParsing.fromString(json['content_type']),
+        filePath: json['file_path']);
 
     final localMessage = LocalMessage(
         chatId: json['chat_id'],

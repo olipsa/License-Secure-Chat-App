@@ -4,7 +4,6 @@ import 'package:bloc/bloc.dart';
 import 'package:chat/chat.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_chat_app/data/services/local_encryption_service.dart';
-import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
 
 part 'message_event.dart';
 part 'message_state.dart';
@@ -12,7 +11,7 @@ part 'message_state.dart';
 class MessageBloc extends Bloc<MessageEvent, MessageState> {
   final IMessageService _messageService;
   StreamSubscription? _subscription;
-  LocalEncryptionService _localEncryptionService;
+  final LocalEncryptionService _localEncryptionService;
 
   MessageBloc(this._messageService, this._localEncryptionService)
       : super(MessageState.initial());
