@@ -23,6 +23,7 @@ class LocalCache implements ILocalCache {
     await _sharedPreferences.setString(key, jsonEncode(json));
   }
 
+  @override
   Future<void> remove(String key) async {
     await _sharedPreferences.remove(key);
   }

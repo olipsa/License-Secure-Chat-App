@@ -10,7 +10,7 @@ class HeaderStatus extends StatelessWidget {
   final DateTime? lastSeen;
   final bool? typing;
   const HeaderStatus(this.username, this.imageUrl, this.online,
-      {this.lastSeen, this.typing});
+      {super.key, this.lastSeen, this.typing});
 
   @override
   Widget build(BuildContext context) {

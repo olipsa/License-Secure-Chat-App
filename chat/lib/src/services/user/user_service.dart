@@ -1,7 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:chat/src/services/user/user_service_contract.dart';
 import 'package:chat/src/models/user.dart';
-import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
 import 'package:rethink_db_ns/rethink_db_ns.dart';
 
 class UserService implements IUserService {

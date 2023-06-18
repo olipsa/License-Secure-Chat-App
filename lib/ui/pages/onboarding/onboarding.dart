@@ -12,7 +12,7 @@ import '../../widgets/shared/custom_text_field.dart';
 
 class Onboarding extends StatefulWidget {
   final IOnboardingRouter router;
-  const Onboarding(this.router);
+  const Onboarding(this.router, {super.key});
 
   @override
   State<Onboarding> createState() => _OnboardingState();
@@ -28,75 +28,71 @@ class _OnboardingState extends State<Onboarding> {
       ),
       resizeToAvoidBottomInset: false,
       body: SafeArea(
-        child: Container(
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-            _logo(context),
-            const Spacer(),
-            const ProfileUpload(),
-            const Spacer(flex: 1),
-            Padding(
-              padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-              child: CustomTextField(
-                hint: 'What\'s your name?',
-                height: 45.0,
-                onchanged: (val) {
-                  _username = val;
-                },
-                inputAction: TextInputAction.done,
-              ),
-            ),
-            const SizedBox(height: 30.0),
-            Padding(
-              padding: const EdgeInsets.only(left: 16.0, right: 16.0),
-              child: ElevatedButton(
-                  onPressed: () async {
-                    final error = _checkInputs();
-                    if (error.isNotEmpty) {
-                      final snackBar = SnackBar(
-                          content: Text(error,
-                              style: const TextStyle(
-                                  fontSize: 14.0,
-                                  fontWeight: FontWeight.bold)));
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                      return;
-                    }
-                    await _connectSession();
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: kPrimary,
-                      elevation: 5.0,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(45.0))),
-                  child: Container(
-                    height: 45.0,
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Join Secure Messenger!',
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          fontSize: 18.0,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  )),
-            ),
-            const Spacer(flex: 3),
-            BlocConsumer<OnboardingCubit, OnboardingState>(
-              builder: (context, state) => state is Loading
-                  ? const Center(child: CircularProgressIndicator())
-                  : Container(),
-              listener: (_, state) {
-                if (state is OnboardingSuccess) {
-                  widget.router.onSessionSuccess(
-                      // route to the home screen of the user that just onboarded
-                      context,
-                      state.user);
-                }
+        child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+          _logo(context),
+          const Spacer(),
+          const ProfileUpload(),
+          const Spacer(flex: 1),
+          Padding(
+            padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+            child: CustomTextField(
+              hint: 'What\'s your name?',
+              height: 45.0,
+              onchanged: (val) {
+                _username = val;
               },
+              inputAction: TextInputAction.done,
             ),
-            Spacer(flex: 1)
-          ]),
-        ),
+          ),
+          const SizedBox(height: 30.0),
+          Padding(
+            padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+            child: ElevatedButton(
+                onPressed: () async {
+                  final error = _checkInputs();
+                  if (error.isNotEmpty) {
+                    final snackBar = SnackBar(
+                        content: Text(error,
+                            style: const TextStyle(
+                                fontSize: 14.0, fontWeight: FontWeight.bold)));
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                    return;
+                  }
+                  await _connectSession();
+                },
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: kPrimary,
+                    elevation: 5.0,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(45.0))),
+                child: Container(
+                  height: 45.0,
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Join Secure Messenger!',
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        fontSize: 18.0,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold),
+                  ),
+                )),
+          ),
+          const Spacer(flex: 3),
+          BlocConsumer<OnboardingCubit, OnboardingState>(
+            builder: (context, state) => state is Loading
+                ? const Center(child: CircularProgressIndicator())
+                : Container(),
+            listener: (_, state) {
+              if (state is OnboardingSuccess) {
+                widget.router.onSessionSuccess(
+                    // route to the home screen of the user that just onboarded
+                    context,
+                    state.user);
+              }
+            },
+          ),
+          const Spacer(flex: 1)
+        ]),
       ),
     );
   }

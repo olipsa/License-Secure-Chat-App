@@ -10,7 +10,7 @@ class CustomTextField extends StatelessWidget {
   final TextInputAction inputAction;
 
   const CustomTextField(
-      {Key? key,
+      {super.key,
       required this.hint,
       required this.onchanged,
       this.height = 54.0,
@@ -25,24 +25,24 @@ class CustomTextField extends StatelessWidget {
             borderRadius: BorderRadius.circular(45.0),
             border: Border.all(
                 color: isLightTheme(context)
-                    ? Color(0xFFC4C4C4)
-                    : Color(0xFF393737),
+                    ? const Color(0xFFC4C4C4)
+                    : const Color(0xFF393737),
                 width: 1.5)),
         child: TextField(
           keyboardType: TextInputType.text,
           onChanged: onchanged,
           textInputAction: inputAction,
           style: isLightTheme(context)
-              ? TextStyle(color: Colors.black)
-              : TextStyle(color: Colors.white),
+              ? const TextStyle(color: Colors.black)
+              : const TextStyle(color: Colors.white),
           cursorColor: kPrimary,
           decoration: InputDecoration(
             contentPadding:
-                EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
+                const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
             hintText: hint,
             hintStyle: isLightTheme(context)
-                ? TextStyle(color: Colors.black)
-                : TextStyle(color: Colors.grey),
+                ? const TextStyle(color: Colors.black)
+                : const TextStyle(color: Colors.grey),
             border: InputBorder.none,
           ),
         ));

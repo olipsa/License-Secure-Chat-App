@@ -1,14 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_chat_app/data/datasource/datasource_contract.dart';
-import 'package:flutter_chat_app/data/services/local_encryption_service.dart';
 import 'package:flutter_chat_app/models/chat_model.dart';
 import 'package:flutter_chat_app/models/local_message.dart';
 
 abstract class BaseViewModel {
-  IDataSource _datasource;
-  LocalEncryptionService _encryptionService;
+  final IDataSource _datasource;
 
-  BaseViewModel(this._datasource, this._encryptionService);
+  BaseViewModel(
+    this._datasource,
+  );
 
   @protected
   Future<void> addMessage(LocalMessage message) async {

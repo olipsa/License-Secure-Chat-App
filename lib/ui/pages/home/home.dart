@@ -1,7 +1,6 @@
 import 'package:chat/chat.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_chat_app/colors.dart';
 import 'package:flutter_chat_app/states_management/home/chats_cubit.dart';
 import 'package:flutter_chat_app/states_management/home/home_cubit.dart';
 import 'package:flutter_chat_app/states_management/home/home_state.dart';
@@ -15,7 +14,7 @@ class Home extends StatefulWidget {
   final User me;
   final IHomeRouter router;
   final IUserService userService;
-  const Home(this.me, this.router, this.userService);
+  const Home(this.me, this.router, this.userService, {super.key});
 
   @override
   State<Home> createState() => _HomeState();
@@ -66,7 +65,7 @@ class _HomeState extends State<Home>
                     child: BlocBuilder<HomeCubit, HomeState>(
                         builder: (_, state) => state is HomeSuccess
                             ? Text('Active(${state.onlineUsers.length})')
-                            : Text('Active(0)')),
+                            : const Text('Active(0)')),
                   ),
                 ),
               )

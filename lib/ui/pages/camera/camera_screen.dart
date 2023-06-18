@@ -4,7 +4,6 @@ import 'package:chat/chat.dart';
 import 'package:flutter_chat_app/ui/pages/message_thread/message_thread_router.dart';
 import 'package:flutter_chat_app/ui/pages/camera/flashlight_button.dart';
 import 'package:image/image.dart' as img;
-import 'package:exif/exif.dart';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +19,8 @@ class CameraScreen extends StatefulWidget {
   String? chatId;
   final IMessageThreadRouter router;
 
-  CameraScreen(this.camera, this.me, this.receiver, this.router, this.chatId);
+  CameraScreen(this.camera, this.me, this.receiver, this.router, this.chatId,
+      {super.key});
 
   @override
   _CameraScreenState createState() => _CameraScreenState();
@@ -71,9 +71,6 @@ class _CameraScreenState extends State<CameraScreen> {
     final originalBytes = await originalFile.readAsBytes();
     final originalImage = img.decodeImage(originalBytes);
 
-    final exifData = await readExifFromFile(originalFile);
-    final orientation = exifData['Image Orientation'];
-
     img.Image orientedImage;
 
     if (_controller.value.description.lensDirection ==
@@ -122,7 +119,7 @@ class _CameraScreenState extends State<CameraScreen> {
                   FloatingActionButton(
                     heroTag: 'button_gallery',
                     backgroundColor: kPrimary,
-                    child: Icon(Icons.photo_library_rounded),
+                    child: const Icon(Icons.photo_library_rounded),
                     onPressed: () {
                       // Take a photo or perform any other camera-related action
                     },
@@ -130,7 +127,7 @@ class _CameraScreenState extends State<CameraScreen> {
                   FloatingActionButton(
                     heroTag: 'button_camera',
                     backgroundColor: kPrimary,
-                    child: Icon(Icons.camera),
+                    child: const Icon(Icons.camera),
                     onPressed: () async {
                       try {
                         await _initializeControllerFuture;
@@ -154,7 +151,7 @@ class _CameraScreenState extends State<CameraScreen> {
                   FloatingActionButton(
                     heroTag: 'button_flip_camera',
                     backgroundColor: kPrimary,
-                    child: Icon(Icons.flip_camera_android_rounded),
+                    child: const Icon(Icons.flip_camera_android_rounded),
                     onPressed: () {
                       _flipCamera();
                     },

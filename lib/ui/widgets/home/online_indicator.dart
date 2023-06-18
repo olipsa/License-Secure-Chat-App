@@ -3,7 +3,7 @@ import 'package:flutter_chat_app/colors.dart';
 import 'package:flutter_chat_app/theme.dart';
 
 class OnlineIndicator extends StatelessWidget {
-  const OnlineIndicator();
+  const OnlineIndicator({super.key});
 
   @override
   Widget build(BuildContext context) {

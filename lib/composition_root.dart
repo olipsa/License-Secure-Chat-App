@@ -61,8 +61,10 @@ class CompositionRoot {
         LocalEncryptionService(_remoteEncryptionService, _encryptedUser);
     _messageBloc = MessageBloc(_messageService, _localEncryptionService);
     _typingNotificationBloc = TypingNotificationBloc(_typingNotification);
-    final viewModel =
-        ChatsViewModel(_datasource, _userService, _localEncryptionService);
+    final viewModel = ChatsViewModel(
+      _datasource,
+      _userService,
+    );
     _chatsCubit = ChatsCubit(viewModel);
     _db.delete('chats');
     _db.delete('messages');
@@ -107,8 +109,7 @@ class CompositionRoot {
 
   static Widget composeMessageThreadUi(User receiver, User me,
       {String? chatId}) {
-    ChatViewModel viewModel =
-        ChatViewModel(_datasource, _localEncryptionService);
+    ChatViewModel viewModel = ChatViewModel(_datasource);
     MessageThreadCubit messageThreadCubit = MessageThreadCubit(viewModel);
     IReceiptService receiptService = ReceiptService(_r, _connection);
     ReceiptBloc receiptBloc = ReceiptBloc(receiptService);
@@ -129,8 +130,7 @@ class CompositionRoot {
   static Widget composePicturePreviewUi(
       User receiver, User me, String? imagePath,
       {String? chatId}) {
-    ChatViewModel viewModel =
-        ChatViewModel(_datasource, _localEncryptionService);
+    ChatViewModel viewModel = ChatViewModel(_datasource);
     MessageThreadCubit messageThreadCubit = MessageThreadCubit(viewModel);
 
     IMessageThreadRouter router = MessageThreadRouter(

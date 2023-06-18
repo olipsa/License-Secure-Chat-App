@@ -5,11 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_app/colors.dart';
 import 'package:flutter_chat_app/models/local_message.dart';
 import 'package:flutter_chat_app/theme.dart';
+import 'package:flutter_chat_app/ui/widgets/message_thread/full_screen_file.dart';
 import 'package:intl/intl.dart';
 
 class SenderMessage extends StatelessWidget {
+  // message sent by me
   final LocalMessage _message;
-  const SenderMessage(this._message);
+  final String? myUsername;
+  const SenderMessage(this._message, this.myUsername, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -99,9 +102,24 @@ class SenderMessage extends StatelessWidget {
                 children: [
                   ClipRRect(
                       borderRadius: BorderRadius.circular(10),
-                      child: Image.file(imageFile,
-                          width: 150, height: 150, fit: BoxFit.cover)),
-                  if (message.contents.trim().isNotEmpty) SizedBox(height: 8),
+                      child: GestureDetector(
+                        child: Image.file(imageFile,
+                            width: 150, height: 150, fit: BoxFit.cover),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => FullScreenImage(
+                                imageFile: imageFile,
+                                timestamp: message.timestamp,
+                                senderUsername: myUsername,
+                              ),
+                            ),
+                          );
+                        },
+                      )),
+                  if (message.contents.trim().isNotEmpty)
+                    const SizedBox(height: 8),
                   if (message.contents.trim().isNotEmpty)
                     Text(message.contents.trim(),
                         softWrap: true,
@@ -113,7 +131,7 @@ class SenderMessage extends StatelessWidget {
                 ],
               )));
     } else {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     }
   }
 }

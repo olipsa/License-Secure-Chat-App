@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_app/colors.dart';
 
 class FlashlightButton extends StatefulWidget {
-  CameraController _cameraController;
+  final CameraController _cameraController;
 
-  FlashlightButton(this._cameraController);
+  const FlashlightButton(this._cameraController, {super.key});
 
   @override
   _FlashlightButtonState createState() => _FlashlightButtonState();

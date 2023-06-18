@@ -4,8 +4,8 @@ import 'package:flutter_chat_app/cache/local_cache.dart';
 import 'package:flutter_chat_app/states_management/home/home_state.dart';
 
 class HomeCubit extends Cubit<HomeState> {
-  IUserService _userService;
-  ILocalCache _localCache;
+  final IUserService _userService;
+  final ILocalCache _localCache;
 
   HomeCubit(this._userService, this._localCache) : super(HomeInitial());
 

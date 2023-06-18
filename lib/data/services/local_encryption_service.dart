@@ -67,7 +67,6 @@ class LocalEncryptionService {
     final imageBytes = await File(message.filePath!).readAsBytes();
     CiphertextMessage ciphertext =
         await cipher.encrypt(Uint8List.fromList(imageBytes));
-    Uint8List imageEncryptedContent = ciphertext.serialize();
     var imageEncryptedContentString = base64Encode(ciphertext.serialize());
     var signalType = ciphertext.getType();
     return Message(
@@ -131,7 +130,7 @@ class LocalEncryptionService {
     } on UntrustedIdentityException catch (e) {
       // Handle the UntrustedIdentityException, e.g., by prompting the user to accept the new identity key
       print(
-          "Sender's identity key has changed. Please verify and accept the new identity key.");
+          "Sender's identity key has changed. Please verify and accept the new identity key.\n$e");
     }
     message.contents = utf8.decode(decryptedMessage);
     return message;
@@ -168,7 +167,7 @@ class LocalEncryptionService {
     } on UntrustedIdentityException catch (e) {
       // Handle the UntrustedIdentityException, e.g., by prompting the user to accept the new identity key
       print(
-          "Sender's identity key has changed. Please verify and accept the new identity key.");
+          "Sender's identity key has changed. Please verify and accept the new identity key.\n$e");
     }
     message.filePath = await _storeDecryptedFile(
         decryptedFile, message.contentType, message.timestamp);

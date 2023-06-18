@@ -9,7 +9,7 @@ import 'package:flutter_chat_app/ui/widgets/home/profile_image.dart';
 class ActiveUsers extends StatefulWidget {
   final User me;
   final IHomeRouter router;
-  const ActiveUsers(this.router, this.me);
+  const ActiveUsers(this.router, this.me, {super.key});
 
   @override
   State<ActiveUsers> createState() => _ActiveUsersState();
@@ -19,8 +19,9 @@ class _ActiveUsersState extends State<ActiveUsers> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HomeCubit, HomeState>(builder: (_, state) {
-      if (state is HomeLoading)
-        return Center(child: CircularProgressIndicator());
+      if (state is HomeLoading) {
+        return const Center(child: CircularProgressIndicator());
+      }
       if (state is HomeSuccess) return _buildLists(state.onlineUsers);
       return Container();
     });
@@ -40,13 +41,13 @@ class _ActiveUsersState extends State<ActiveUsers> {
         ),
       );
   _buildLists(List<User> users) => ListView.separated(
-      padding: EdgeInsets.only(top: 15.0, right: 16.0),
+      padding: const EdgeInsets.only(top: 15.0, right: 16.0),
       itemBuilder: (BuildContext context, index) => GestureDetector(
             child: _listItem(users[index]),
             onTap: () => widget.router.onShowMessageThread(
                 context, users[index], widget.me,
                 chatId: users[index].id),
           ),
-      separatorBuilder: (_, __) => Divider(),
+      separatorBuilder: (_, __) => const Divider(),
       itemCount: users.length);
 }

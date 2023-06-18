@@ -5,7 +5,7 @@ class ProfileImage extends StatelessWidget {
   final String? imageUrl;
   final bool online;
 
-  const ProfileImage({required this.imageUrl, this.online = false});
+  const ProfileImage({super.key, required this.imageUrl, this.online = false});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +21,7 @@ class ProfileImage extends StatelessWidget {
           ),
           Align(
             alignment: Alignment.topRight,
-            child: online ? OnlineIndicator() : Container(),
+            child: online ? const OnlineIndicator() : Container(),
           )
         ],
       ),

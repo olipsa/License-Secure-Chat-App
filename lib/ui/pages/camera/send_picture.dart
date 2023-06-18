@@ -15,7 +15,8 @@ class SendPicture extends StatefulWidget {
   final IMessageThreadRouter router;
   final String? chatId;
   const SendPicture(this.imagePath, this.me, this.receiver, this.messageBloc,
-      this.router, this.chatId);
+      this.router, this.chatId,
+      {super.key});
 
   @override
   State<StatefulWidget> createState() => _SendPictureState();
@@ -30,18 +31,18 @@ class _SendPictureState extends State<SendPicture> {
 
   @override
   Widget build(BuildContext context) {
-    var receiver_username = widget.receiver.username;
+    var receiverUsername = widget.receiver.username;
     return Scaffold(
-      appBar: AppBar(title: Text("Send to $receiver_username")),
+      appBar: AppBar(title: Text("Send to $receiverUsername")),
       body: Column(
         children: [
           Expanded(
               child: SingleChildScrollView(
-                  physics: BouncingScrollPhysics(),
+                  physics: const BouncingScrollPhysics(),
                   child: Image.file(File(widget.imagePath)))),
           SingleChildScrollView(
             scrollDirection: Axis.vertical,
-            physics: BouncingScrollPhysics(),
+            physics: const BouncingScrollPhysics(),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -54,9 +55,9 @@ class _SendPictureState extends State<SendPicture> {
                     width: 45.0,
                     child: RawMaterialButton(
                       fillColor: kPrimary,
-                      shape: new CircleBorder(),
+                      shape: const CircleBorder(),
                       elevation: 5.0,
-                      child: Icon(
+                      child: const Icon(
                         Icons.send,
                         color: Colors.white,
                       ),
@@ -76,7 +77,7 @@ class _SendPictureState extends State<SendPicture> {
 
   _buildMessageInput(BuildContext context) {
     final border = OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(90.0)),
+        borderRadius: const BorderRadius.all(Radius.circular(90.0)),
         borderSide: isLightTheme(context)
             ? BorderSide.none
             : BorderSide(color: Colors.grey.withOpacity(0.3)));
@@ -91,7 +92,7 @@ class _SendPictureState extends State<SendPicture> {
           cursorColor: kPrimary,
           decoration: InputDecoration(
               contentPadding:
-                  EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
+                  const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
               enabledBorder: border,
               filled: true,
               fillColor: isLightTheme(context)
@@ -100,13 +101,13 @@ class _SendPictureState extends State<SendPicture> {
               focusedBorder: border,
               hintText: 'Add a description',
               hintStyle: isLightTheme(context)
-                  ? TextStyle(color: Colors.black)
-                  : TextStyle(color: Colors.grey)),
+                  ? const TextStyle(color: Colors.black)
+                  : const TextStyle(color: Colors.grey)),
         ));
   }
 
   _sendImage() {
-    if (widget.imagePath == null) return;
+    if (widget.imagePath == '') return;
 
     final message = Message(
         from: widget.me.id,

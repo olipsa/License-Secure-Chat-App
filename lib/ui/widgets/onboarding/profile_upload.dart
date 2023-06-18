@@ -8,7 +8,7 @@ import 'package:flutter_chat_app/theme.dart';
 import '../../../states_management/onboarding/profile_image_cubit.dart';
 
 class ProfileUpload extends StatelessWidget {
-  const ProfileUpload();
+  const ProfileUpload({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,8 +17,8 @@ class ProfileUpload extends StatelessWidget {
         width: 126.0,
         child: Material(
             color: isLightTheme(context)
-                ? Color.fromARGB(141, 197, 130, 204)
-                : Color.fromARGB(255, 72, 71, 71),
+                ? kPrimary
+                : const Color.fromARGB(255, 72, 71, 71),
             borderRadius: BorderRadius.circular(126.0),
             child: InkWell(
                 borderRadius: BorderRadius.circular(126.0),
@@ -53,7 +53,7 @@ class ProfileUpload extends StatelessWidget {
                         )
                         // child:
                         ),
-                    Align(
+                    const Align(
                       alignment: Alignment.bottomRight,
                       child: Icon(Icons.add_circle_rounded,
                           color: kPrimary, size: 38.0),

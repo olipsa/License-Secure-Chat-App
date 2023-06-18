@@ -1,5 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:chat/src/models/receipt.dart';
+import 'package:chat/chat.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'package:flutter_chat_app/data/datasource/datasource_contract.dart';
@@ -95,8 +95,9 @@ class SqfliteDatasource implements IDataSource {
           limit: 1);
       final chat = Chat.fromMap(listOfChatMaps.first);
       chat.unread = unread!;
-      if (mostRecentMessage.isNotEmpty)
+      if (mostRecentMessage.isNotEmpty) {
         chat.mostRecent = LocalMessage.fromMap(mostRecentMessage.first);
+      }
       return chat;
     });
   }

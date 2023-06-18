@@ -10,7 +10,7 @@ class TypingNotification implements ITypingNotification {
 
   final _controller = StreamController<TypingEvent>.broadcast();
   StreamSubscription? _changefeed;
-  IUserService? _userService;
+  final IUserService? _userService;
 
   TypingNotification(this._r, this._connection, this._userService);
 

@@ -14,7 +14,7 @@ import 'package:intl/intl.dart';
 class Chats extends StatefulWidget {
   final User user;
   final IHomeRouter router;
-  const Chats(this.user, this.router);
+  const Chats(this.user, this.router, {super.key});
 
   @override
   State<Chats> createState() => _ChatsState();
@@ -44,7 +44,7 @@ class _ChatsState extends State<Chats> {
 
   _buildListView() {
     return ListView.separated(
-        padding: EdgeInsets.only(top: 15.0, right: 16.0),
+        padding: const EdgeInsets.only(top: 15.0, right: 16.0),
         itemBuilder: (_, index) => GestureDetector(
               child: _chatItem(chats[index]),
               onTap: () async {
@@ -57,12 +57,12 @@ class _ChatsState extends State<Chats> {
                     .chats(); // update unread message count
               },
             ),
-        separatorBuilder: (_, __) => Divider(),
+        separatorBuilder: (_, __) => const Divider(),
         itemCount: chats.length);
   }
 
   _chatItem(Chat chat) => ListTile(
-        contentPadding: EdgeInsets.only(left: 16.0),
+        contentPadding: const EdgeInsets.only(left: 16.0),
         leading: ProfileImage(
             imageUrl: chat.from.photoUrl, online: chat.from.active),
         title: Text(chat.from.username,

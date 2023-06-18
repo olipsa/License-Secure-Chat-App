@@ -18,7 +18,8 @@ final tabBarTheme = TabBarTheme(
   ),
 );
 
-final dividerTheme = DividerThemeData().copyWith(thickness: 1.0, indent: 75.0);
+final dividerTheme =
+    const DividerThemeData().copyWith(thickness: 1.0, indent: 75.0);
 
 ThemeData lightTheme(BuildContext context) => ThemeData.light().copyWith(
       primaryColor: kPrimary,
@@ -26,7 +27,7 @@ ThemeData lightTheme(BuildContext context) => ThemeData.light().copyWith(
       appBarTheme: appBarTheme,
       tabBarTheme: tabBarTheme,
       dividerTheme: dividerTheme.copyWith(color: kIconLight),
-      iconTheme: IconThemeData(color: kIconLight),
+      iconTheme: const IconThemeData(color: kIconLight),
       textTheme: GoogleFonts.comfortaaTextTheme(Theme.of(context).textTheme)
           .apply(displayColor: Colors.black),
       visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -34,11 +35,11 @@ ThemeData lightTheme(BuildContext context) => ThemeData.light().copyWith(
 
 ThemeData darkTheme(BuildContext context) => ThemeData.dark().copyWith(
     primaryColor: kPrimary,
-    scaffoldBackgroundColor: Color.fromARGB(255, 30, 29, 29),
+    scaffoldBackgroundColor: const Color.fromARGB(255, 30, 29, 29),
     tabBarTheme: tabBarTheme.copyWith(unselectedLabelColor: Colors.white70),
     appBarTheme: appBarTheme.copyWith(backgroundColor: kAppBarDark),
     dividerTheme: dividerTheme.copyWith(color: kBubbleDark),
-    iconTheme: IconThemeData(color: Colors.black),
+    iconTheme: const IconThemeData(color: Colors.black),
     textTheme: GoogleFonts.comfortaaTextTheme(Theme.of(context).textTheme)
         .apply(displayColor: Colors.white),
     visualDensity: VisualDensity.adaptivePlatformDensity);

@@ -30,7 +30,7 @@ class MessageThread extends StatefulWidget {
   final IMessageThreadRouter router;
   const MessageThread(this.receiver, this.me, this.messageBloc, this.chatsCubit,
       this.typingNotificationBloc, this.router,
-      {this.chatId = ''});
+      {super.key, this.chatId = ''});
 
   @override
   State<MessageThread> createState() => _MessageThreadState();
@@ -109,10 +109,11 @@ class _MessageThreadState extends State<MessageThread> {
               child: BlocBuilder<MessageThreadCubit, List<LocalMessage>>(
                   builder: (__, messages) {
                 this.messages = messages;
-                if (this.messages.isEmpty)
+                if (this.messages.isEmpty) {
                   return Container(
                     color: Colors.transparent,
                   );
+                }
                 WidgetsBinding.instance.addPostFrameCallback((_) =>
                     _scrollToTheEnd()); // runs the method when the list view is rendered
                 return _buildListOfMessages();
@@ -148,9 +149,9 @@ class _MessageThreadState extends State<MessageThread> {
                               width: 45.0,
                               child: RawMaterialButton(
                                 fillColor: kPrimary,
-                                shape: CircleBorder(),
+                                shape: const CircleBorder(),
                                 elevation: 5.0,
-                                child: Icon(
+                                child: const Icon(
                                   Icons.camera_alt_rounded,
                                   color: Colors.white,
                                 ),
@@ -160,16 +161,16 @@ class _MessageThreadState extends State<MessageThread> {
                                 },
                               ),
                             ),
-                            SizedBox(width: 8.0),
+                            const SizedBox(width: 8.0),
                             Container(
                               // send button container
                               height: 45.0,
                               width: 45.0,
                               child: RawMaterialButton(
                                 fillColor: kPrimary,
-                                shape: new CircleBorder(),
+                                shape: const CircleBorder(),
                                 elevation: 5.0,
-                                child: Icon(
+                                child: const Icon(
                                   Icons.send,
                                   color: Colors.white,
                                 ),
@@ -193,31 +194,32 @@ class _MessageThreadState extends State<MessageThread> {
   }
 
   _buildListOfMessages() => ListView.builder(
-        padding: EdgeInsets.only(top: 16, left: 16.0, bottom: 20),
+        padding: const EdgeInsets.only(top: 16, left: 16.0, bottom: 20),
         itemBuilder: (__, idx) {
           if (messages[idx].message.from == receiver.id) {
             _sendReceipt(messages[idx]);
             return Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
-              child: ReceiverMessage(messages[idx], receiver.photoUrl),
+              child: ReceiverMessage(
+                  messages[idx], receiver.photoUrl, receiver.username),
             );
           } else {
             //message from sender
             return Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
-              child: SenderMessage(messages[idx]),
+              child: SenderMessage(messages[idx], widget.me.username),
             );
           }
         },
         itemCount: messages.length,
         controller: _scrollController,
-        physics: AlwaysScrollableScrollPhysics(),
+        physics: const AlwaysScrollableScrollPhysics(),
         addAutomaticKeepAlives: true,
       );
 
   _buildMessageInput(BuildContext context) {
     final border = OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(90.0)),
+        borderRadius: const BorderRadius.all(Radius.circular(90.0)),
         borderSide: isLightTheme(context)
             ? BorderSide.none
             : BorderSide(color: Colors.grey.withOpacity(0.3)));
@@ -240,7 +242,7 @@ class _MessageThreadState extends State<MessageThread> {
         onChanged: _sendTypingNotification,
         decoration: InputDecoration(
             contentPadding:
-                EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
+                const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
             enabledBorder: border,
             filled: true,
             fillColor:
@@ -329,10 +331,10 @@ class _MessageThreadState extends State<MessageThread> {
     if (_startTypingTimer?.isActive ?? false) return;
     if (_stopTypingTimer?.isActive ?? false) _stopTypingTimer?.cancel();
     _dispatchTyping(Typing.start);
-    _startTypingTimer = Timer(Duration(seconds: 5), () {});
+    _startTypingTimer = Timer(const Duration(seconds: 5), () {});
     // after 1s of sending the typing notification, the typing message will stop
     _stopTypingTimer =
-        Timer(Duration(seconds: 6), () => _dispatchTyping(Typing.stop));
+        Timer(const Duration(seconds: 6), () => _dispatchTyping(Typing.stop));
   }
 
   _scrollToTheEnd() {
