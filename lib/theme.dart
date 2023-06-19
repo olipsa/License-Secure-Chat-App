@@ -24,8 +24,10 @@ final dividerTheme =
 ThemeData lightTheme(BuildContext context) => ThemeData.light().copyWith(
       primaryColor: kPrimary,
       scaffoldBackgroundColor: Colors.white,
-      appBarTheme: appBarTheme,
-      tabBarTheme: tabBarTheme,
+      appBarTheme: appBarTheme.copyWith(
+          titleTextStyle: TextStyle(color: Colors.black),
+          iconTheme: IconThemeData(color: Color.fromARGB(255, 57, 57, 57))),
+      tabBarTheme: tabBarTheme.copyWith(unselectedLabelColor: Colors.black),
       dividerTheme: dividerTheme.copyWith(color: kIconLight),
       iconTheme: const IconThemeData(color: kIconLight),
       textTheme: GoogleFonts.comfortaaTextTheme(Theme.of(context).textTheme)
