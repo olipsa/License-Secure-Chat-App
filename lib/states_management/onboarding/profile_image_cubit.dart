@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_app/colors.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -20,26 +19,31 @@ class ProfileImageCubit extends Cubit<File?> {
   }
 
   Future<void> cropImage(XFile image, BuildContext context) async {
-    ImageCropper cropper = ImageCropper();
-    File? croppedImage = await cropper.cropImage(
-      sourcePath: image.path,
-      aspectRatio: const CropAspectRatio(
-        ratioX: 1, // Set the aspect ratio to 1:1 for a square format
-        ratioY: 1,
+    var croppedImage = await ImageCropper()
+        .cropImage(sourcePath: image.path, aspectRatioPresets: [
+      CropAspectRatioPreset.square,
+    ], uiSettings: [
+      AndroidUiSettings(
+        toolbarTitle: 'Crop Image',
+        toolbarColor: Colors.black,
+        toolbarWidgetColor: Colors.white,
+        backgroundColor: Colors.white,
+        cropFrameColor: Colors.black,
+        cropGridColor: Colors.black,
+        initAspectRatio: CropAspectRatioPreset.original,
+        lockAspectRatio: false,
       ),
-      compressQuality: 50,
-      maxWidth: 1000,
-      maxHeight: 1000,
-      androidUiSettings: const AndroidUiSettings(
-          toolbarTitle: 'Crop Image',
-          toolbarColor: kPrimary,
-          toolbarWidgetColor: Colors.black,
-          backgroundColor: Colors.white,
-          activeControlsWidgetColor: kPrimary),
-    );
+      IOSUiSettings(
+        title: 'Crop Image',
+      ),
+      WebUiSettings(
+        context: context,
+      ),
+    ]);
 
     if (croppedImage != null) {
-      emit(croppedImage);
+      File imageFile = File(croppedImage.path);
+      emit(imageFile);
     }
   }
 }
