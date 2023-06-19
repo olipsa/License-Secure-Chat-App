@@ -131,9 +131,9 @@ class _OnboardingState extends State<Onboarding> {
     var error = '';
     if (_username.isEmpty) error = 'Enter display name';
 
-    if (context.read<ProfileImageCubit>().state == null) {
-      error = '$error\nUpload profile image';
-    }
+    // if (context.read<ProfileImageCubit>().state == null) {
+    //   error = '$error\nUpload profile image';
+    // }
 
     return error;
   }

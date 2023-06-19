@@ -207,7 +207,7 @@ class _MessageThreadState extends State<MessageThread> {
             //message from sender
             return Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
-              child: SenderMessage(messages[idx], widget.me.username),
+              child: SenderMessage(messages[idx]),
             );
           }
         },

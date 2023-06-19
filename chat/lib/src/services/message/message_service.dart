@@ -29,6 +29,10 @@ class MessageService implements IMessageService {
   @override
   Future<Message> send(Message message) async {
     var data = message.toJson();
+    data.remove('file_path');
+    if (message.contentType == ContentType.text) {
+      data.remove('file_contents');
+    }
 
     Map record = await r
         .table('messages')

@@ -23,7 +23,7 @@ class Message {
   int? signalType;
   ContentType contentType;
   String? filePath = '';
-  String? fileContents;
+  String? fileContents = '';
 
   Message(
       {required this.from,

@@ -33,7 +33,9 @@ class MessageBloc extends Bloc<MessageEvent, MessageState> {
       Message ciphertext =
           await _localEncryptionService.encryptMessage(event.message);
       var message = await _messageService.send(ciphertext);
+      // re-create the original message to store it in the local db
       message.contents = plaintext.contents;
+      message.filePath = plaintext.filePath;
       yield MessageState.sent(message);
     }
   }

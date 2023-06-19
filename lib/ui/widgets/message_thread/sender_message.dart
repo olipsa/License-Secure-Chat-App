@@ -11,8 +11,7 @@ import 'package:intl/intl.dart';
 class SenderMessage extends StatelessWidget {
   // message sent by me
   final LocalMessage _message;
-  final String? myUsername;
-  const SenderMessage(this._message, this.myUsername, {super.key});
+  const SenderMessage(this._message, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +111,7 @@ class SenderMessage extends StatelessWidget {
                               builder: (context) => FullScreenImage(
                                 imageFile: imageFile,
                                 timestamp: message.timestamp,
-                                senderUsername: myUsername,
+                                senderUsername: 'You',
                               ),
                             ),
                           );
