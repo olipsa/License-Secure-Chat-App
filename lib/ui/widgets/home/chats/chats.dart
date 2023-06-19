@@ -9,6 +9,7 @@ import 'package:flutter_chat_app/states_management/typing/typing_notification_bl
 import 'package:flutter_chat_app/theme.dart';
 import 'package:flutter_chat_app/ui/pages/home/home_router.dart';
 import 'package:flutter_chat_app/ui/widgets/home/profile_image.dart';
+import 'package:flutter_chat_app/ui/widgets/shared/header_status.dart';
 import 'package:intl/intl.dart';
 
 class Chats extends StatefulWidget {
@@ -64,7 +65,10 @@ class _ChatsState extends State<Chats> {
   _chatItem(Chat chat) => ListTile(
         contentPadding: const EdgeInsets.only(left: 16.0),
         leading: ProfileImage(
-            imageUrl: chat.from.photoUrl, online: chat.from.active),
+          imageUrl: chat.from.photoUrl,
+          online: chat.from.active,
+          username: chat.from.username,
+        ),
         title: Text(chat.from.username,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
@@ -107,7 +111,12 @@ class _ChatsState extends State<Chats> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              DateFormat('h:mm a').format(chat.mostRecent!.message.timestamp),
+              DateTime.now().day == chat.mostRecent!.message.timestamp.day
+                  ? DateFormat('h:mm a')
+                      .format(chat.mostRecent!.message.timestamp)
+                  : formatDate(chat.mostRecent!.message.timestamp)
+                      .split(',')
+                      .first,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color:
                         isLightTheme(context) ? Colors.black54 : Colors.white70,

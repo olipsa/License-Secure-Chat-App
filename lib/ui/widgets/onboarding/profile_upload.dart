@@ -12,18 +12,18 @@ class ProfileUpload extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
         height: 126.0,
         width: 126.0,
         child: Material(
             color: isLightTheme(context)
-                ? kPrimary
-                : const Color.fromARGB(255, 72, 71, 71),
+                ? const Color.fromARGB(255, 242, 242, 242)
+                : const Color.fromARGB(255, 56, 52, 52),
             borderRadius: BorderRadius.circular(126.0),
             child: InkWell(
                 borderRadius: BorderRadius.circular(126.0),
                 onTap: () async {
-                  await context.read<ProfileImageCubit>().getImage();
+                  await context.read<ProfileImageCubit>().getImage(context);
                 },
                 child: Stack(
                   fit: StackFit.expand,
@@ -37,7 +37,8 @@ class ProfileUpload extends StatelessWidget {
                                     Icons.person_outline_rounded,
                                     size: 126.0,
                                     color: isLightTheme(context)
-                                        ? kIconLight
+                                        ? const Color.fromARGB(
+                                            222, 181, 180, 180)
                                         : Colors.black,
                                   )
                                 : ClipRRect(

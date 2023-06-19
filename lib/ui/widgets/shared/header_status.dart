@@ -14,13 +14,14 @@ class HeaderStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: double.maxFinite,
       child: Row(
         children: [
           ProfileImage(
             imageUrl: imageUrl,
             online: online,
+            username: username,
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -37,7 +38,7 @@ class HeaderStatus extends StatelessWidget {
                       ? Text(
                           online
                               ? 'online'
-                              : 'last seen ${DateFormat.yMd().add_jm().format(lastSeen!)}',
+                              : 'last seen ${formatDate(lastSeen!)}',
                           style: Theme.of(context).textTheme.bodySmall)
                       : Text('typing..',
                           style: Theme.of(context)
@@ -50,4 +51,24 @@ class HeaderStatus extends StatelessWidget {
       ),
     );
   }
+}
+
+String formatDate(DateTime timestamp) {
+  String formattedDate;
+  DateTime now = DateTime.now();
+  DateTime yesterday = DateTime.now().subtract(const Duration(days: 1));
+  if (timestamp.year == now.year &&
+      timestamp.month == now.month &&
+      timestamp.day == now.day) {
+    formattedDate = 'Today';
+  } else if (timestamp.year == yesterday.year &&
+      timestamp.month == yesterday.month &&
+      timestamp.day == yesterday.day) {
+    formattedDate = 'Yesterday';
+  } else {
+    formattedDate = DateFormat('EEEE MMMM d, y').format(timestamp);
+  }
+  formattedDate = '$formattedDate, ${DateFormat('h:mm a').format(timestamp)}';
+
+  return formattedDate;
 }

@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_chat_app/ui/widgets/shared/header_status.dart';
 
 class FullScreenImage extends StatefulWidget {
   final File imageFile;
@@ -50,7 +50,7 @@ class _FullScreenImageState extends State<FullScreenImage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      _formatDate(widget.timestamp),
+                      formatDate(widget.timestamp),
                       style: const TextStyle(fontSize: 14),
                     ),
                   ],
@@ -61,25 +61,5 @@ class _FullScreenImageState extends State<FullScreenImage> {
         ),
       ),
     );
-  }
-
-  String _formatDate(DateTime timestamp) {
-    String formattedDate;
-    DateTime now = DateTime.now();
-    DateTime yesterday = DateTime.now().subtract(const Duration(days: 1));
-    if (timestamp.year == now.year &&
-        timestamp.month == now.month &&
-        timestamp.day == now.day) {
-      formattedDate = 'Today';
-    } else if (timestamp.year == yesterday.year &&
-        timestamp.month == yesterday.month &&
-        timestamp.day == yesterday.day) {
-      formattedDate = 'Yesterday';
-    } else {
-      formattedDate = DateFormat('EEEE MMMM d, y').format(timestamp);
-    }
-    formattedDate = '$formattedDate, ${DateFormat('h:mm a').format(timestamp)}';
-
-    return formattedDate;
   }
 }

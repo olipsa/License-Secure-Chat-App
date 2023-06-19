@@ -31,6 +31,7 @@ class _ActiveUsersState extends State<ActiveUsers> {
         leading: ProfileImage(
           imageUrl: user.photoUrl,
           online: true,
+          username: user.username,
         ),
         title: Text(
           user.username,

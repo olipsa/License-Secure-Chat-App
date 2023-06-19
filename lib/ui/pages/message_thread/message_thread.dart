@@ -121,7 +121,7 @@ class _MessageThreadState extends State<MessageThread> {
             ),
             Expanded(
               child: Container(
-                height: 100,
+                height: 40,
                 decoration: BoxDecoration(
                     color: isLightTheme(context) ? Colors.white : kAppBarDark,
                     boxShadow: const [
@@ -143,7 +143,7 @@ class _MessageThreadState extends State<MessageThread> {
                         padding: const EdgeInsets.only(left: 12.0),
                         child: Row(
                           children: [
-                            Container(
+                            SizedBox(
                               // send image/video container
                               height: 45.0,
                               width: 45.0,
@@ -162,7 +162,7 @@ class _MessageThreadState extends State<MessageThread> {
                               ),
                             ),
                             const SizedBox(width: 8.0),
-                            Container(
+                            SizedBox(
                               // send button container
                               height: 45.0,
                               width: 45.0,

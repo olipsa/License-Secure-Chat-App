@@ -35,7 +35,7 @@ ThemeData lightTheme(BuildContext context) => ThemeData.light().copyWith(
 
 ThemeData darkTheme(BuildContext context) => ThemeData.dark().copyWith(
     primaryColor: kPrimary,
-    scaffoldBackgroundColor: const Color.fromARGB(255, 30, 29, 29),
+    scaffoldBackgroundColor: const Color.fromARGB(255, 37, 36, 36),
     tabBarTheme: tabBarTheme.copyWith(unselectedLabelColor: Colors.white70),
     appBarTheme: appBarTheme.copyWith(backgroundColor: kAppBarDark),
     dividerTheme: dividerTheme.copyWith(color: kBubbleDark),
