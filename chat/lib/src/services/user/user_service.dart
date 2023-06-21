@@ -36,11 +36,35 @@ class UserService implements IUserService {
   }
 
   @override
-  Future<List<User>> online() async {
-    Cursor users =
-        await r.table('users').filter({'active': true}).run(_connection!);
-    final userList = await users.toList();
-    return userList.map((item) => User.fromJson(item)).toList();
+  Future<List<User>> contacts(Map<String, String> phoneDisplayNameMap) async {
+    List<dynamic> userList = [];
+    try {
+      // filter users that have a phone number
+      Cursor users = await r.table('users').run(_connection!);
+
+      userList = await users.toList();
+      await users.close();
+    } catch (e, stackTrace) {
+      print('Error: $e');
+      print('StackTrace: $stackTrace');
+    }
+
+    print("in rethink db");
+    print(userList.toString());
+    print("\n in contacts");
+    print(phoneDisplayNameMap.keys.toString());
+
+    // Update the userList with the display name from the contact display name
+    List<User> existingUsers = userList
+        .where((item) {
+          String? phoneNumber = item['phone_number'];
+          item['username'] = phoneDisplayNameMap[phoneNumber];
+          return phoneNumber != null &&
+              phoneDisplayNameMap.containsKey(phoneNumber);
+        })
+        .map((item) => User.fromJson(item))
+        .toList();
+    return existingUsers;
   }
 
   @override

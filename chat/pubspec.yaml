@@ -8,8 +8,6 @@ environment:
   flutter: ">=1.17.0"
 
 dependencies:
-  encrypt: ^5.0.1
-  firebase_auth: ^4.6.3
   flutter:
     sdk: flutter
   libsignal_protocol_dart: ^0.7.1

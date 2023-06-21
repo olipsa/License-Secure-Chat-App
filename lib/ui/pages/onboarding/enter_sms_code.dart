@@ -74,12 +74,12 @@ class _EnterSmsCodePageState extends State<EnterSmsCodePage> {
                   (BuildContext context, CurrentRemainingTime? time) {
                 if (time == null) {
                   return Text(
-                    'Haven\'t received the code? Resend is available.',
+                    'Haven\'t received any SMS yet? Please request to resend.',
                     style: textColor,
                   );
                 }
                 return Text(
-                  'Code expires in ${time.min ?? 0}:${time.sec ?? 0}',
+                  'The confirmation code was sent to ${widget._phoneNumber}. Code expires in ${time.min ?? 0}:${time.sec ?? 0} and then you can request to resend the code.',
                   style: textColor,
                 );
               },
