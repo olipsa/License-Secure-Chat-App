@@ -171,7 +171,6 @@ class PhoneAuthState extends State<PhoneAuth> {
               child: ElevatedButton.icon(
                 onPressed: () async {
                   _connectSession();
-                  Navigator.pop(context);
                 },
                 style: ElevatedButton.styleFrom(
                     backgroundColor: kPrimary,
