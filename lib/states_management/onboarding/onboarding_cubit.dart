@@ -18,11 +18,16 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       this._remoteEncryptionService, this._encryptedUser)
       : super(OnboardingInitial());
 
-  Future<void> connect(String name, File profileImage) async {
+  Future<void> connect(String name, File profileImage,
+      {String? phoneNumber}) async {
     emit(Loading());
     final url = await _imageUploader.uploadImage(profileImage);
     final user = User(
-        username: name, photoUrl: url, active: true, lastseen: DateTime.now());
+        username: name,
+        photoUrl: url,
+        active: true,
+        lastseen: DateTime.now(),
+        phoneNumber: phoneNumber);
     final createdUser = await _userService.connect(user);
     final userJson = {
       'username': createdUser.username,

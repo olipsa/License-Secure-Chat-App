@@ -5,6 +5,7 @@ import 'package:flutter_chat_app/states_management/onboarding/onboarding_cubit.d
 import 'package:flutter_chat_app/states_management/onboarding/onboarding_state.dart';
 import 'package:flutter_chat_app/states_management/onboarding/profile_image_cubit.dart';
 import 'package:flutter_chat_app/ui/pages/onboarding/onboarding_router.dart';
+import 'package:flutter_chat_app/ui/pages/onboarding/phone_auth.dart';
 
 import '../../widgets/onboarding/logo.dart';
 import '../../widgets/onboarding/profile_upload.dart';
@@ -58,7 +59,22 @@ class _OnboardingState extends State<Onboarding> {
                     ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     return;
                   }
-                  await _connectSession();
+                  ProfileImageCubit imageCubit =
+                      context.read<ProfileImageCubit>();
+                  OnboardingCubit onboardingCubit =
+                      context.read<OnboardingCubit>();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MultiBlocProvider(
+                        providers: [
+                          BlocProvider.value(value: imageCubit),
+                          BlocProvider.value(value: onboardingCubit),
+                        ],
+                        child: PhoneAuth(_username),
+                      ),
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                     backgroundColor: kPrimary,
@@ -122,19 +138,9 @@ class _OnboardingState extends State<Onboarding> {
         ]);
   }
 
-  _connectSession() async {
-    final profileImage = context.read<ProfileImageCubit>().state;
-    await context.read<OnboardingCubit>().connect(_username, profileImage!);
-  }
-
   String _checkInputs() {
     var error = '';
     if (_username.isEmpty) error = 'Enter display name';
-
-    // if (context.read<ProfileImageCubit>().state == null) {
-    //   error = '$error\nUpload profile image';
-    // }
-
     return error;
   }
 }

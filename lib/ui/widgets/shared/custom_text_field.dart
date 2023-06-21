@@ -8,13 +8,15 @@ class CustomTextField extends StatelessWidget {
   final Function(String val) onchanged;
   final double height;
   final TextInputAction inputAction;
+  final String? labelText;
 
   const CustomTextField(
       {super.key,
       required this.hint,
       required this.onchanged,
       this.height = 54.0,
-      required this.inputAction});
+      required this.inputAction,
+      this.labelText});
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +42,7 @@ class CustomTextField extends StatelessWidget {
             contentPadding:
                 const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
             hintText: hint,
+            labelText: labelText,
             hintStyle: isLightTheme(context)
                 ? const TextStyle(color: Colors.black)
                 : const TextStyle(color: Colors.grey),
