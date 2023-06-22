@@ -22,6 +22,7 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   Future<void> activeUsers(User user) async {
+    // creates list of users that are in the contact list and have Secure Messenger account
     emit(HomeLoading());
     List<User> users = [];
     PermissionStatus status = await Permission.contacts.status;
@@ -41,11 +42,9 @@ class HomeCubit extends Cubit<HomeState> {
           if (phones.isNotEmpty) {
             for (var phone in phones) {
               if (phone.value != null) {
-                print('Before: ${phone.value}');
-                String prefix = getUserPrefix(user.phoneNumber);
+                String prefix = getUserPrefix(user.phoneNumber, 9);
                 String formattedPhoneNumber =
                     formatPhoneNumber(phone.value!, prefix);
-                print('After: $formattedPhoneNumber');
                 phoneDisplayNameMap[formattedPhoneNumber] = displayName;
               }
             }
@@ -54,6 +53,7 @@ class HomeCubit extends Cubit<HomeState> {
       }
       users = await _userService.contacts(phoneDisplayNameMap);
       users.removeWhere((element) => element.id == user.id);
+      print('contact list is emitted');
       emit(HomeSuccess(users));
     }
   }
@@ -82,10 +82,10 @@ class HomeCubit extends Cubit<HomeState> {
     return phoneNumber;
   }
 
-  String getUserPrefix(String? phoneNumber) {
+  String getUserPrefix(String? phoneNumber, int countPhoneDigits) {
     if (phoneNumber != null) {
 // here we have a number in the format +40756236884, where +40 is the prefix
-      return phoneNumber.substring(1, phoneNumber.length - 10);
+      return phoneNumber.substring(1, phoneNumber.length - countPhoneDigits);
     }
     return ('40');
   }

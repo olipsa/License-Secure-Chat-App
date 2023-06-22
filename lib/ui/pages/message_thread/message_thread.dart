@@ -90,6 +90,7 @@ class _MessageThreadState extends State<MessageThread> {
                 receiver.username,
                 receiver.photoUrl,
                 receiver.active,
+                receiver.phoneNumber,
                 lastSeen: receiver.lastseen,
                 typing: typing,
               );

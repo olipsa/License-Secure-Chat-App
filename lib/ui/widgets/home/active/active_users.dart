@@ -29,10 +29,10 @@ class _ActiveUsersState extends State<ActiveUsers> {
 
   _listItem(User user) => ListTile(
         leading: ProfileImage(
-          imageUrl: user.photoUrl,
-          online: true,
-          username: user.username,
-        ),
+            imageUrl: user.photoUrl,
+            online: true,
+            username: user.username,
+            phoneNumber: user.phoneNumber),
         title: Text(
           user.username,
           style: Theme.of(context)

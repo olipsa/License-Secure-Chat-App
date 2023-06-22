@@ -9,7 +9,9 @@ class HeaderStatus extends StatelessWidget {
   final bool online;
   final DateTime? lastSeen;
   final bool? typing;
-  const HeaderStatus(this.username, this.imageUrl, this.online,
+  final String? phoneNumber;
+  const HeaderStatus(
+      this.username, this.imageUrl, this.online, this.phoneNumber,
       {super.key, this.lastSeen, this.typing});
 
   @override
@@ -19,10 +21,10 @@ class HeaderStatus extends StatelessWidget {
       child: Row(
         children: [
           ProfileImage(
-            imageUrl: imageUrl,
-            online: online,
-            username: username,
-          ),
+              imageUrl: imageUrl,
+              online: online,
+              username: username,
+              phoneNumber: phoneNumber),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

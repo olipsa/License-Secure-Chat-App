@@ -143,4 +143,10 @@ class _OnboardingState extends State<Onboarding> {
     if (_username.isEmpty) error = 'Enter display name';
     return error;
   }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
 }

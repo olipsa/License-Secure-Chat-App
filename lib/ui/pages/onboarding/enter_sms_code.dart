@@ -28,12 +28,13 @@ class EnterSmsCodePage extends StatefulWidget {
 
 class _EnterSmsCodePageState extends State<EnterSmsCodePage> {
   final TextEditingController _smsCodeController = TextEditingController();
-  int expirationTime = 30;
-  int secondsRemaining = 30;
+  int expirationTime = 60;
+  int secondsRemaining = 60;
   bool enableResend = false;
   late Timer timer;
   late int endTime;
   bool isResending = false;
+  String errorMessage = '';
 
   @override
   void initState() {
@@ -73,10 +74,17 @@ class _EnterSmsCodePageState extends State<EnterSmsCodePage> {
               widgetBuilder:
                   (BuildContext context, CurrentRemainingTime? time) {
                 if (time == null) {
-                  return Text(
-                    'Haven\'t received any SMS yet? Please request to resend.',
-                    style: textColor,
-                  );
+                  if (errorMessage == '') {
+                    return Text(
+                      'Haven\'t received any SMS yet? Please request to resend.',
+                      style: textColor,
+                    );
+                  } else {
+                    return Text(
+                      errorMessage,
+                      style: TextStyle(color: Colors.red),
+                    );
+                  }
                 }
                 return Text(
                   'The confirmation code was sent to ${widget._phoneNumber}. Code expires in ${time.min ?? 0}:${time.sec ?? 0} and then you can request to resend the code.',
@@ -113,8 +121,8 @@ class _EnterSmsCodePageState extends State<EnterSmsCodePage> {
                     await validateSmsCode(context, _smsCodeController.text);
                 if (userCredential != null) {
                   print("User signed in: ${userCredential.user!.phoneNumber}");
-                  await _connectSession();
-                  Navigator.pop(context); // Navigate back to the previous page
+                  _connectSession();
+                  Navigator.pop(context);
                 } else {
                   // Show an error message or handle the error
                 }
@@ -201,43 +209,20 @@ class _EnterSmsCodePageState extends State<EnterSmsCodePage> {
     FirebaseAuth auth = FirebaseAuth.instance;
     try {
       PhoneAuthCredential credential = PhoneAuthProvider.credential(
-        verificationId: widget._verificationId!,
+        verificationId: widget._verificationId,
         smsCode: smsCode,
       );
-
       UserCredential userCredential =
           await auth.signInWithCredential(credential);
       print("User signed in: ${userCredential.user!.phoneNumber}");
       return userCredential;
     } catch (e) {
       print("Error validating SMS code: $e");
+      setState(() {
+        errorMessage = "Unable to validate SMS code. Please try again.";
+      });
       return null;
     }
-  }
-
-  _connectSession() async {
-    final firestore = FirebaseFirestore.instance;
-    try {
-      await firestore
-          .collection('phone_numbers')
-          .doc(widget._phoneNumber)
-          .set({'phone_number': widget._phoneNumber});
-    } catch (e) {
-      print("Error storing phone number in Firestore: $e");
-    }
-    File? profileImage = context.read<ProfileImageCubit>().state;
-    if (profileImage == null) {
-      String assetPath = 'assets/avatar.png';
-      final byteData = await rootBundle.load(assetPath);
-      final tempDir = await getTemporaryDirectory();
-      final tempPath = '${tempDir.path}/${assetPath.split('/').last}';
-      final file = File(tempPath);
-      await file.writeAsBytes(byteData.buffer.asUint8List(), flush: true);
-      profileImage = file;
-    }
-    await context.read<OnboardingCubit>().connect(
-        widget._username, profileImage!,
-        phoneNumber: widget._phoneNumber);
   }
 
   void _resendCode() async {
@@ -266,6 +251,31 @@ class _EnterSmsCodePageState extends State<EnterSmsCodePage> {
     setState(() {
       isResending = false;
     });
+  }
+
+  _connectSession() async {
+    // final firestore = FirebaseFirestore.instance;
+    // try {
+    //   await firestore
+    //       .collection('phone_numbers')
+    //       .doc(widget._phoneNumber)
+    //       .set({'phone_number': widget._phoneNumber});
+    // } catch (e) {
+    //   print("Error storing phone number in Firestore: $e");
+    // }
+    File? profileImage = context.read<ProfileImageCubit>().state;
+    if (profileImage == null) {
+      String assetPath = 'assets/avatar.png';
+      final byteData = await rootBundle.load(assetPath);
+      final tempDir = await getTemporaryDirectory();
+      final tempPath = '${tempDir.path}/${assetPath.split('/').last}';
+      final file = File(tempPath);
+      await file.writeAsBytes(byteData.buffer.asUint8List(), flush: true);
+      profileImage = file;
+    }
+    await context.read<OnboardingCubit>().connect(
+        widget._username, profileImage,
+        phoneNumber: widget._phoneNumber);
   }
 
   @override

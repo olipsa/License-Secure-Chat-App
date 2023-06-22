@@ -3,6 +3,7 @@
 import 'package:chat/chat.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_chat_app/colors.dart';
 import 'package:flutter_chat_app/states_management/home/chats_cubit.dart';
 import 'package:flutter_chat_app/states_management/home/home_cubit.dart';
 import 'package:flutter_chat_app/states_management/home/home_state.dart';
@@ -11,6 +12,7 @@ import 'package:flutter_chat_app/ui/pages/home/home_router.dart';
 import 'package:flutter_chat_app/ui/widgets/home/active/active_users.dart';
 import 'package:flutter_chat_app/ui/widgets/home/chats/chats.dart';
 import 'package:flutter_chat_app/ui/widgets/shared/header_status.dart';
+import 'package:local_auth/local_auth.dart';
 
 class Home extends StatefulWidget {
   final User me;
@@ -26,8 +28,11 @@ class _HomeState extends State<Home>
     with AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
   late User _user;
   late IUserService _userService;
+  final LocalAuthentication _localAuthentication = LocalAuthentication();
+
   @override
   void initState() {
+    //_biometricAuth();
     WidgetsBinding.instance.addObserver(this);
     super.initState();
     _user = widget.me;
@@ -42,7 +47,49 @@ class _HomeState extends State<Home>
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: HeaderStatus(_user.username, _user.photoUrl, true),
+          title: HeaderStatus(
+              _user.username, _user.photoUrl, true, _user.phoneNumber),
+          actions: [
+            PopupMenuButton<String>(
+              itemBuilder: (BuildContext context) => [
+                PopupMenuItem(
+                  value: 'option1',
+                  child: Text(
+                    'Add phone number',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'option2',
+                  child: Text(
+                    'View security passphrase',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'option3',
+                  child: Text(
+                    'Delete account',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+              icon: Icon(
+                Icons.settings_outlined,
+                color: kPrimary,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5), // Add rounded corners
+                side: BorderSide.none,
+              ),
+              offset: Offset(0, 40),
+              color: kBubbleDark,
+              onSelected: (value) {
+                // Handle the selected option here
+                print('Selected option: $value');
+              },
+            )
+          ],
           bottom: TabBar(
             indicatorPadding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
             tabs: [
@@ -66,17 +113,33 @@ class _HomeState extends State<Home>
                     alignment: Alignment.center,
                     child: BlocBuilder<HomeCubit, HomeState>(
                         builder: (_, state) => state is HomeSuccess
-                            ? Text('Active(${state.onlineUsers.length})')
-                            : const Text('Active(0)')),
+                            ? Text('Contacts(${state.onlineUsers.length})')
+                            : const Text('Contacts(0)')),
                   ),
                 ),
               )
             ],
           ),
         ),
-        body: TabBarView(children: [
-          Chats(_user, widget.router),
-          ActiveUsers(widget.router, _user),
+        body: Stack(children: [
+          TabBarView(children: [
+            Chats(_user, widget.router),
+            ActiveUsers(widget.router, _user),
+          ]),
+          Positioned(
+            bottom: 16.0,
+            right: 16.0,
+            child: FloatingActionButton(
+              onPressed: () {
+                // Handle button press
+              },
+              backgroundColor: kPrimary,
+              child: Icon(
+                Icons.qr_code,
+                color: kBubbleDark,
+              ),
+            ),
+          ),
         ]),
       ),
     );
@@ -87,8 +150,8 @@ class _HomeState extends State<Home>
     final user =
         (!_user.active) ? await context.read<HomeCubit>().connect() : _user;
 
-    context.read<ChatsCubit>().chats();
-    context.read<HomeCubit>().activeUsers(user);
+    await context.read<ChatsCubit>().chats();
+    await context.read<HomeCubit>().activeUsers(user);
     context.read<MessageBloc>().add(MessageEvent.onSubscribed(_user));
   }
 
@@ -129,5 +192,31 @@ class _HomeState extends State<Home>
       default:
         break;
     }
+  }
+
+  _biometricAuth() async {
+    bool isAvailable = await _isBiometricAvailable();
+    if (isAvailable) {
+      bool isAuthenticated = await _authenticate();
+      if (isAuthenticated) {
+        // Navigate to another screen or perform a secure action
+      } else {
+        print('Authentication failed');
+      }
+    } else {
+      print('Biometric authentication is not available');
+    }
+  }
+
+  Future<bool> _isBiometricAvailable() async {
+    bool isAvailable = await _localAuthentication.canCheckBiometrics;
+    return isAvailable;
+  }
+
+  Future<bool> _authenticate() async {
+    bool isAuthenticated = await _localAuthentication.authenticate(
+      localizedReason: 'Please authenticate to proceed.',
+    );
+    return isAuthenticated;
   }
 }

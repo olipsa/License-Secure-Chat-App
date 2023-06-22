@@ -17,6 +17,7 @@ class ReceiptService implements IReceiptService {
 
   @override
   dispose() {
+    print('_controller closed');
     _changefeed?.cancel();
     _controller.close();
   }
@@ -49,8 +50,12 @@ class ReceiptService implements IReceiptService {
 
                 final receipt = _receiptFromFeed(feedData);
                 _removeDeliveredReceipt(receipt);
-                _controller.sink.add(
-                    receipt); //receipt added to the stream so that client can receive it
+                if (!_controller.isClosed) {
+                  _controller.sink.add(
+                      receipt); //receipt added to the stream so that client can receive it
+                } else {
+                  print('StreamController is closed');
+                }
               })
               .catchError((err) => print(err))
               .onError((error, stackTrace) => print(error));

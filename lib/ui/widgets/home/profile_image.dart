@@ -5,12 +5,14 @@ class ProfileImage extends StatelessWidget {
   final String? imageUrl;
   final String? username;
   final bool online;
+  final String? phoneNumber;
 
   const ProfileImage(
       {super.key,
       required this.imageUrl,
       this.online = false,
-      required this.username});
+      required this.username,
+      required this.phoneNumber});
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +42,24 @@ class ProfileImage extends StatelessWidget {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => Scaffold(
-          appBar: AppBar(title: Text(username!)),
+          appBar: AppBar(
+              title: Column(
+            children: [
+              Text(username!),
+              SizedBox(height: 5.0),
+              phoneNumber != null
+                  ? Text(
+                      phoneNumber!,
+                      style: TextStyle(
+                          color: Color.fromARGB(255, 168, 166, 166),
+                          fontSize: 12.0),
+                    )
+                  : Container(
+                      width: 0.0,
+                      height: 0.0,
+                    )
+            ],
+          )),
           body: Center(
             child: Image.network(imageUrl!, fit: BoxFit.cover),
           ),

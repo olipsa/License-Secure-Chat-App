@@ -8,10 +8,12 @@ package="com.example.flutter_chat_app">
     <uses-feature android:name="android.hardware.camera.flash" />
     <uses-permission android:name="android.permission.READ_CONTACTS" /> 
     <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
+    <uses-permission android:name="android.permission.USE_FINGERPRINT"/>
     <application
         android:label="flutter_chat_app"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:hardwareAccelerated="false">
         <activity
             android:name=".MainActivity"
             android:exported="true"

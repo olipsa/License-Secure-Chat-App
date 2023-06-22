@@ -16,6 +16,6 @@ class OnboardingRouter implements IOnboardingRouter {
         context,
         MaterialPageRoute(builder: (_) => onSessionConnected(me)),
         (Route<dynamic> route) =>
-            false); //the previous onboarding page will be removed
+            false); //the previous onboarding pages are removed so that we cannot go back
   }
 }

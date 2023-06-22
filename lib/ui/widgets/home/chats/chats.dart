@@ -65,10 +65,10 @@ class _ChatsState extends State<Chats> {
   _chatItem(Chat chat) => ListTile(
         contentPadding: const EdgeInsets.only(left: 16.0),
         leading: ProfileImage(
-          imageUrl: chat.from.photoUrl,
-          online: chat.from.active,
-          username: chat.from.username,
-        ),
+            imageUrl: chat.from.photoUrl,
+            online: chat.from.active,
+            username: chat.from.username,
+            phoneNumber: chat.from.phoneNumber),
         title: Text(chat.from.username,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,

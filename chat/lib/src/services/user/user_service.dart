@@ -41,18 +41,11 @@ class UserService implements IUserService {
     try {
       // filter users that have a phone number
       Cursor users = await r.table('users').run(_connection!);
-
       userList = await users.toList();
-      await users.close();
     } catch (e, stackTrace) {
       print('Error: $e');
       print('StackTrace: $stackTrace');
     }
-
-    print("in rethink db");
-    print(userList.toString());
-    print("\n in contacts");
-    print(phoneDisplayNameMap.keys.toString());
 
     // Update the userList with the display name from the contact display name
     List<User> existingUsers = userList
