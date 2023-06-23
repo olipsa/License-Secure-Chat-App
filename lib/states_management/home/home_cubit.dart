@@ -84,7 +84,7 @@ class HomeCubit extends Cubit<HomeState> {
 
   String getUserPrefix(String? phoneNumber, int countPhoneDigits) {
     if (phoneNumber != null) {
-// here we have a number in the format +40756236884, where +40 is the prefix
+      // here we have a number in the format +40756236884, where +40 is the prefix
       return phoneNumber.substring(1, phoneNumber.length - countPhoneDigits);
     }
     return ('40');

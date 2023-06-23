@@ -11,6 +11,7 @@ import 'package:flutter_chat_app/states_management/message/message_bloc.dart';
 import 'package:flutter_chat_app/ui/pages/home/home_router.dart';
 import 'package:flutter_chat_app/ui/widgets/home/active/active_users.dart';
 import 'package:flutter_chat_app/ui/widgets/home/chats/chats.dart';
+import 'package:flutter_chat_app/ui/widgets/home/qr/qr_code.dart';
 import 'package:flutter_chat_app/ui/widgets/shared/header_status.dart';
 import 'package:local_auth/local_auth.dart';
 
@@ -52,21 +53,21 @@ class _HomeState extends State<Home>
           actions: [
             PopupMenuButton<String>(
               itemBuilder: (BuildContext context) => [
-                PopupMenuItem(
+                const PopupMenuItem(
                   value: 'option1',
                   child: Text(
                     'Add phone number',
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
-                PopupMenuItem(
+                const PopupMenuItem(
                   value: 'option2',
                   child: Text(
                     'View security passphrase',
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
-                PopupMenuItem(
+                const PopupMenuItem(
                   value: 'option3',
                   child: Text(
                     'Delete account',
@@ -74,7 +75,7 @@ class _HomeState extends State<Home>
                   ),
                 ),
               ],
-              icon: Icon(
+              icon: const Icon(
                 Icons.settings_outlined,
                 color: kPrimary,
               ),
@@ -82,7 +83,7 @@ class _HomeState extends State<Home>
                 borderRadius: BorderRadius.circular(5), // Add rounded corners
                 side: BorderSide.none,
               ),
-              offset: Offset(0, 40),
+              offset: const Offset(0, 40),
               color: kBubbleDark,
               onSelected: (value) {
                 // Handle the selected option here
@@ -131,10 +132,18 @@ class _HomeState extends State<Home>
             right: 16.0,
             child: FloatingActionButton(
               onPressed: () {
-                // Handle button press
+                // open the QR code page of the user
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => QrCode(
+                              me: _user,
+                              userService: _userService,
+                              router: widget.router,
+                            )));
               },
               backgroundColor: kPrimary,
-              child: Icon(
+              child: const Icon(
                 Icons.qr_code,
                 color: kBubbleDark,
               ),

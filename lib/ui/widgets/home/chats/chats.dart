@@ -50,8 +50,7 @@ class _ChatsState extends State<Chats> {
               child: _chatItem(chats[index]),
               onTap: () async {
                 await widget.router.onShowMessageThread(
-                    context, chats[index].from, widget.user,
-                    chatId: chats[index].id);
+                    context, chats[index].from, widget.user);
 
                 await context
                     .read<ChatsCubit>()

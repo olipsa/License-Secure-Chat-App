@@ -17,7 +17,7 @@ class TypingNotification implements ITypingNotification {
   @override
   Future<bool> send({required TypingEvent event}) async {
     final receiver = await _userService!.fetch(event.to); //gets the user
-    if (!receiver.active) return false;
+    if (!receiver!.active) return false;
     Map record = await _r
         .table('typing_events')
         .insert(event.toJson(), {'conflict': 'update'}).run(_connection);

@@ -107,8 +107,7 @@ class CompositionRoot {
     ], child: Home(me, router, _userService));
   }
 
-  static Widget composeMessageThreadUi(User receiver, User me,
-      {String? chatId}) {
+  static Widget composeMessageThreadUi(User receiver, User me) {
     ChatViewModel viewModel = ChatViewModel(_datasource);
     MessageThreadCubit messageThreadCubit = MessageThreadCubit(viewModel);
     IReceiptService receiptService = ReceiptService(_r, _connection);
@@ -123,8 +122,7 @@ class CompositionRoot {
           BlocProvider(create: (BuildContext context) => receiptBloc)
         ],
         child: MessageThread(receiver, me, _messageBloc, _chatsCubit,
-            _typingNotificationBloc, router,
-            chatId: chatId));
+            _typingNotificationBloc, router));
   }
 
   static Widget composePicturePreviewUi(

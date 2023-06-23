@@ -16,7 +16,6 @@ abstract class BaseViewModel {
     if (!await _isExistingChat(message.chatId)) {
       await _createNewChat(message.chatId);
     }
-    // tbd: encrypt the message first
     await _datasource.addMessage(message);
   }
 

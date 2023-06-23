@@ -68,7 +68,7 @@ String formatDate(DateTime timestamp) {
       timestamp.day == yesterday.day) {
     formattedDate = 'Yesterday';
   } else {
-    formattedDate = DateFormat('EEEE MMMM d, y').format(timestamp);
+    formattedDate = 'on ${DateFormat('MMMM d, y').format(timestamp)}';
   }
   formattedDate = '$formattedDate, ${DateFormat('h:mm a').format(timestamp)}';
 

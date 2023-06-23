@@ -15,11 +15,9 @@ class CameraScreen extends StatefulWidget {
   final CameraDescription camera;
   final User me;
   final User receiver;
-  final String? chatId;
   final IMessageThreadRouter router;
 
-  const CameraScreen(
-      this.camera, this.me, this.receiver, this.router, this.chatId,
+  const CameraScreen(this.camera, this.me, this.receiver, this.router,
       {super.key});
 
   @override
@@ -31,10 +29,12 @@ class CameraScreenState extends State<CameraScreen> {
   late Future<void> _initializeControllerFuture;
   bool _isImageCapturing = false;
   String? _photoPath;
+  String? chatId;
 
   @override
   void initState() {
     super.initState();
+    chatId = widget.receiver.id;
     _initializeControllerFuture = initializeCamera();
   }
 
@@ -167,8 +167,7 @@ class CameraScreenState extends State<CameraScreen> {
         await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedImage != null) {
       widget.router.onShowPicturePreview(
-          context, widget.receiver, widget.me, pickedImage.path,
-          chatId: widget.chatId);
+          context, widget.receiver, widget.me, pickedImage.path);
     }
   }
 
@@ -195,8 +194,7 @@ class CameraScreenState extends State<CameraScreen> {
     }
     if (_photoPath != null) {
       widget.router.onShowPicturePreview(
-          context, widget.receiver, widget.me, _photoPath,
-          chatId: widget.chatId);
+          context, widget.receiver, widget.me, _photoPath);
     }
   }
 }

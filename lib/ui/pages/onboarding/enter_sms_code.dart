@@ -28,8 +28,8 @@ class EnterSmsCodePage extends StatefulWidget {
 
 class _EnterSmsCodePageState extends State<EnterSmsCodePage> {
   final TextEditingController _smsCodeController = TextEditingController();
-  int expirationTime = 60;
-  int secondsRemaining = 60;
+  int expirationTime = 120;
+  int secondsRemaining = 120;
   bool enableResend = false;
   late Timer timer;
   late int endTime;
@@ -81,15 +81,22 @@ class _EnterSmsCodePageState extends State<EnterSmsCodePage> {
                     );
                   } else {
                     return Text(
-                      errorMessage,
+                      '$errorMessage as the previous one expired.',
                       style: TextStyle(color: Colors.red),
                     );
                   }
                 }
-                return Text(
-                  'The confirmation code was sent to ${widget._phoneNumber}. Code expires in ${time.min ?? 0}:${time.sec ?? 0} and then you can request to resend the code.',
-                  style: textColor,
-                );
+                if (errorMessage == '') {
+                  return Text(
+                    'The confirmation code was sent to ${widget._phoneNumber}. Code expires in ${time.min ?? 0}:${time.sec ?? 0} and then you can request to resend the code.',
+                    style: textColor,
+                  );
+                } else {
+                  return Text(
+                    '$errorMessage in ${time.min ?? 0}:${time.sec ?? 0} or try again.',
+                    style: TextStyle(color: Colors.red),
+                  );
+                }
               },
             ),
             SizedBox(height: 40),
@@ -219,7 +226,7 @@ class _EnterSmsCodePageState extends State<EnterSmsCodePage> {
     } catch (e) {
       print("Error validating SMS code: $e");
       setState(() {
-        errorMessage = "Unable to validate SMS code. Please try again.";
+        errorMessage = "Unable to validate SMS code. Please request a new code";
       });
       return null;
     }
@@ -230,24 +237,27 @@ class _EnterSmsCodePageState extends State<EnterSmsCodePage> {
       secondsRemaining = expirationTime;
       enableResend = false;
       isResending = true;
+      errorMessage = '';
       endTime = DateTime.now().millisecondsSinceEpoch + 1000 * expirationTime;
     });
     // Cancel the previous timer
     timer.cancel();
 
     // Create a new timer
+    widget._verificationId = await _resendSmsCode(widget._phoneNumber);
     timer = Timer.periodic(Duration(seconds: 1), (_) {
       if (secondsRemaining != 0) {
         setState(() {
           secondsRemaining--;
         });
       } else {
+        // if timer expired
         setState(() {
           enableResend = true;
         });
       }
     });
-    widget._verificationId = await _resendSmsCode(widget._phoneNumber);
+
     setState(() {
       isResending = false;
     });

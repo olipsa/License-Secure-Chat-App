@@ -127,8 +127,6 @@ class _SendPictureState extends State<SendPicture> {
     final sendMessageEvent = MessageEvent.onMessageSent(message);
     widget.messageBloc.add(sendMessageEvent);
     _textEditingController.clear();
-    // widget.router.onShowMessageThread(context, widget.receiver, widget.me,
-    //     chatId: widget.chatId);
     Navigator.pop(context);
     Navigator.pop(context);
   }

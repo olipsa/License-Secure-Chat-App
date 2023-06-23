@@ -61,9 +61,12 @@ class UserService implements IUserService {
   }
 
   @override
-  Future<User> fetch(String? id) async {
+  Future<User?> fetch(String? id) async {
     final user = await r.table('users').get(id).run(_connection!);
-    return User.fromJson(user);
+    if (user != null) {
+      return User.fromJson(user);
+    }
+    return null;
   }
 
   @override

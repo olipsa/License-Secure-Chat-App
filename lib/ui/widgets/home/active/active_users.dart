@@ -45,9 +45,8 @@ class _ActiveUsersState extends State<ActiveUsers> {
       padding: const EdgeInsets.only(top: 15.0, right: 16.0),
       itemBuilder: (BuildContext context, index) => GestureDetector(
             child: _listItem(users[index]),
-            onTap: () => widget.router.onShowMessageThread(
-                context, users[index], widget.me,
-                chatId: users[index].id),
+            onTap: () => widget.router
+                .onShowMessageThread(context, users[index], widget.me),
           ),
       separatorBuilder: (_, __) => const Divider(),
       itemCount: users.length);

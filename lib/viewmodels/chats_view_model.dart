@@ -14,7 +14,7 @@ class ChatsViewModel extends BaseViewModel {
     final chats = await _dataSource.findAllChats();
     await Future.forEach(chats, (chat) async {
       final user = await _userService.fetch(chat.id);
-      chat.from = user;
+      chat.from = user!;
     });
 
     return chats;

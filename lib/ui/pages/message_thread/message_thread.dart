@@ -23,14 +23,19 @@ import 'package:flutter_chat_app/ui/widgets/shared/header_status.dart';
 class MessageThread extends StatefulWidget {
   final User receiver;
   final User me;
-  final String? chatId;
   final MessageBloc messageBloc;
   final TypingNotificationBloc typingNotificationBloc;
   final ChatsCubit chatsCubit;
   final IMessageThreadRouter router;
-  const MessageThread(this.receiver, this.me, this.messageBloc, this.chatsCubit,
-      this.typingNotificationBloc, this.router,
-      {super.key, this.chatId = ''});
+  const MessageThread(
+    this.receiver,
+    this.me,
+    this.messageBloc,
+    this.chatsCubit,
+    this.typingNotificationBloc,
+    this.router, {
+    super.key,
+  });
 
   @override
   State<MessageThread> createState() => _MessageThreadState();
@@ -49,7 +54,7 @@ class _MessageThreadState extends State<MessageThread> {
   @override
   void initState() {
     super.initState();
-    chatId = widget.chatId;
+    chatId = widget.receiver.id;
     receiver = widget.receiver;
     _updateOnMessageReceived();
     _updateOnReceiptReceived();
@@ -323,7 +328,7 @@ class _MessageThreadState extends State<MessageThread> {
       context,
       MaterialPageRoute(
           builder: (context) =>
-              CameraScreen(camera, widget.me, receiver, widget.router, chatId)),
+              CameraScreen(camera, widget.me, receiver, widget.router)),
     );
   }
 
