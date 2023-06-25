@@ -17,6 +17,12 @@ class LocalDatabaseFactory {
   void populateDb(Database db, int version) async {
     await _createChatTable(db);
     await _createMessagesTable(db);
+    await _createIdentityKeyTable(db);
+    await _createTrustedKeysTable(db);
+    await _createMetadataTable(db);
+    await _createPreKeysTable(db);
+    await _createSignedPreKeysTable(db);
+    await _createSessionsTable(db);
   }
 
   _createChatTable(Database db) async {
@@ -49,5 +55,76 @@ class LocalDatabaseFactory {
       """)
         .then((_) => print('creating table messages'))
         .catchError((e) => print('error creating messages table: $e'));
+  }
+
+  _createIdentityKeyTable(Database db) async {
+    await db
+        .execute(
+          """CREATE TABLE user_identity(
+            registration_id INTEGER PRIMARY KEY,
+            identity_key_pair BLOB NOT NULL
+            )""",
+        )
+        .then((_) => print('creating table user_identity...'))
+        .catchError((e) => print('error creating user_identity table: $e'));
+  }
+
+  _createTrustedKeysTable(Database db) async {
+    await db
+        .execute(
+          """CREATE TABLE trusted_keys(
+            address TEXT PRIMARY KEY,
+            identity_key BLOB NOT NULL
+            )""",
+        )
+        .then((_) => print('creating table trusted_keys...'))
+        .catchError((e) => print('error creating trusted_keys table: $e'));
+  }
+
+  _createMetadataTable(Database db) async {
+    await db
+        .execute(
+          """CREATE TABLE metadata(
+            current_pre_key_id INTEGER PRIMARY KEY
+            )""",
+        )
+        .then((_) => print('creating table metadata...'))
+        .catchError((e) => print('error creating metadata table: $e'));
+  }
+
+  _createPreKeysTable(Database db) async {
+    await db
+        .execute(
+          """CREATE TABLE pre_keys(
+            id INTEGER PRIMARY KEY,
+            pre_key BLOB NOT NULL
+            )""",
+        )
+        .then((_) => print('creating table pre_keys...'))
+        .catchError((e) => print('error creating pre_keys table: $e'));
+  }
+
+  _createSignedPreKeysTable(Database db) async {
+    await db
+        .execute(
+          """CREATE TABLE signed_pre_keys(
+            id INTEGER PRIMARY KEY,
+            signed_pre_key BLOB NOT NULL
+            )""",
+        )
+        .then((_) => print('creating table signed_pre_keys...'))
+        .catchError((e) => print('error creating signed_pre_keys table: $e'));
+  }
+
+  _createSessionsTable(Database db) async {
+    await db
+        .execute(
+          """CREATE TABLE sessions(
+            address TEXT PRIMARY KEY,
+            session BLOB NOT NULL
+            )""",
+        )
+        .then((_) => print('creating table sessions...'))
+        .catchError((e) => print('error creating sessions table: $e'));
   }
 }

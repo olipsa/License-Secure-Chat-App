@@ -17,6 +17,7 @@ class LocalEncryptionService {
 
   createSecureSession(
       String? recipientId, SignalProtocolAddress recipientAddress) async {
+    // create the session builder
     SessionBuilder sessionBuilder = SessionBuilder(
         _user.sessionStore,
         _user.preKeyStore,
@@ -27,6 +28,20 @@ class LocalEncryptionService {
     PreKeyBundle recipientPreKeyBundle =
         await _remoteEncryptionService.retrievePreKeyBundle(recipientId);
     await sessionBuilder.processPreKeyBundle(recipientPreKeyBundle);
+  }
+
+  _replaceOneTimePreKey(String myUserId) async {
+    int currentId = _user.preKeyId;
+    // remove preKey from local storage
+    _user.preKeyStore.removePreKey(currentId);
+    int newpreKeyId = currentId + 1;
+    _user.preKeyId = newpreKeyId;
+    var nextPreKey = await _user.preKeyStore.loadPreKey(newpreKeyId);
+    // update current preKeyId in local storage
+    await _user.preKeyStore.updateCurrentPreKey(newpreKeyId);
+    // update PreKeyBundle in Rethink DB with next prekey
+    await _remoteEncryptionService.updateOneTimePreKey(
+        myUserId, nextPreKey.getKeyPair().publicKey, newpreKeyId);
   }
 
   SessionCipher createSessionCipher(SignalProtocolAddress recipientAddress) {
@@ -42,16 +57,19 @@ class LocalEncryptionService {
       await createSecureSession(recipientId, recipientAddress);
     }
     SessionCipher cipher = createSessionCipher(recipientAddress);
-    var contents = message.contents;
+    var contents = message.contents['text'];
     final Uint8List plaintext = Uint8List.fromList(utf8.encode(contents));
     CiphertextMessage ciphertext = await cipher.encrypt(plaintext);
-    var messageContent = base64Encode(ciphertext.serialize());
+    Uint8List serializedCiphertext = ciphertext.serialize();
+    var encryptedContent = {
+      "encrypted_content": base64Encode(serializedCiphertext)
+    };
     var signalType = ciphertext.getType();
     return Message(
         from: message.from,
         to: message.to,
         timestamp: message.timestamp,
-        contents: messageContent,
+        contents: encryptedContent,
         signalType: signalType,
         contentType: message.contentType);
   }
@@ -64,20 +82,53 @@ class LocalEncryptionService {
       await createSecureSession(recipientId, recipientAddress);
     }
     SessionCipher cipher = createSessionCipher(recipientAddress);
-    final imageBytes = await File(message.filePath!).readAsBytes();
-    CiphertextMessage ciphertext =
-        await cipher.encrypt(Uint8List.fromList(imageBytes));
-    var imageEncryptedContentString = base64Encode(ciphertext.serialize());
+    Uint8List descriptionBytes =
+        Uint8List.fromList(utf8.encode(message.contents['text']));
+    Uint8List fileBytes = message.contents['file'];
+
+    Uint8List combinedBytes;
+    Uint8List descriptionLengthBytes = Uint8List(4);
+
+    if (descriptionBytes.isEmpty) {
+      combinedBytes =
+          Uint8List(descriptionLengthBytes.length + fileBytes.length);
+      combinedBytes.setRange(
+          descriptionLengthBytes.length, combinedBytes.length, fileBytes);
+    } else {
+      // concatenate both the file and it's description in a byte array to encrypt it
+      // description byte array length also needst to be concatenated to be able to decrypt
+      ByteData.view(descriptionLengthBytes.buffer)
+          .setInt32(0, descriptionBytes.length);
+      combinedBytes = Uint8List(descriptionLengthBytes.length +
+          descriptionBytes.length +
+          fileBytes.length);
+
+      combinedBytes.setRange(
+          0, descriptionLengthBytes.length, descriptionLengthBytes);
+      combinedBytes.setRange(
+          descriptionLengthBytes.length,
+          descriptionLengthBytes.length + descriptionBytes.length,
+          descriptionBytes);
+      combinedBytes.setRange(
+          descriptionLengthBytes.length + descriptionBytes.length,
+          combinedBytes.length,
+          fileBytes);
+    }
+
+    CiphertextMessage ciphertext = await cipher.encrypt(combinedBytes);
+    Uint8List serializedCiphertext = ciphertext.serialize();
     var signalType = ciphertext.getType();
+    var fileEncryptedContent = {
+      "encrypted_content": base64Encode(serializedCiphertext)
+    };
     return Message(
         from: message.from,
         to: message.to,
         timestamp: message.timestamp,
-        contents: message.contents,
+        contents: fileEncryptedContent,
         signalType: signalType,
         contentType: message.contentType,
-        filePath: message.filePath,
-        fileContents: imageEncryptedContentString);
+        filePath: message.filePath);
   }
 
   Future<Message> encryptMessage(Message message) async {
@@ -86,93 +137,116 @@ class LocalEncryptionService {
       return await encryptMessageText(message);
     } else if (message.contentType == ContentType.image) {
       // for image files
-      Message encryptedImageContent = await encryptMessageFile(message);
-      if (message.contents.isNotEmpty) {
-        Message encryptedImageDescription = await encryptMessageText(message);
-        encryptedImageContent.contents = encryptedImageDescription.contents;
-      }
-      return encryptedImageContent;
+      return await encryptMessageFile(message);
     }
     return await encryptMessageText(message);
   }
 
   Future<Message> decryptMessageText(Message message) async {
     String? recipientId = message.from;
+    String? myId = message.to;
+    String contents = message.contents['encrypted_content'];
+    var signalType = message.signalType;
+
     SignalProtocolAddress recipientAddress = SignalProtocolAddress(
         recipientId!, await _retrieveDeviceId(recipientId));
+
+    bool replacePreKey = false;
     if (!await _user.sessionStore.containsSession(recipientAddress)) {
-      createSecureSession(recipientId, recipientAddress);
+      //message encrypted with a session that was not established previously
+      await createSecureSession(recipientId, recipientAddress);
+      replacePreKey = true;
     }
+
+    // decrypt message
+    final Uint8List serializedCiphertext = base64Decode(contents);
     SessionCipher cipher = createSessionCipher(recipientAddress);
-
-    var contents = message.contents;
-    final Uint8List serializedCiphertext =
-        Uint8List.fromList(base64Decode(contents));
-    late Uint8List decryptedMessage;
-
-    try {
-      if (message.signalType == CiphertextMessage.whisperType) {
-        // message encrypted with an established session
-        final SignalMessage deserializedCiphertext =
-            SignalMessage.fromSerialized(serializedCiphertext);
-        decryptedMessage =
-            await cipher.decryptFromSignal(deserializedCiphertext);
-      } else if (message.signalType == CiphertextMessage.prekeyType) {
-        //message encrypted with a session that was not established previously
-        PreKeySignalMessage preKeySignalMessage =
-            PreKeySignalMessage(serializedCiphertext);
-        decryptedMessage = await cipher.decrypt(preKeySignalMessage);
-      } else {
-        print("Invalid CiphertextMessage object.");
-        print('Type of ciphertext is ');
-        print(message.signalType);
-      }
-    } on UntrustedIdentityException catch (e) {
-      // Handle the UntrustedIdentityException, e.g., by prompting the user to accept the new identity key
-      print(
-          "Sender's identity key has changed. Please verify and accept the new identity key.\n$e");
+    Uint8List decryptedMessage;
+    if (signalType == CiphertextMessage.prekeyType) {
+      PreKeySignalMessage preKeySignalMessage =
+          PreKeySignalMessage(serializedCiphertext);
+      decryptedMessage = await cipher.decrypt(preKeySignalMessage);
+    } else if (signalType == CiphertextMessage.whisperType) {
+      SignalMessage signalMessage =
+          SignalMessage.fromSerialized(serializedCiphertext);
+      decryptedMessage = await cipher.decryptFromSignal(signalMessage);
+    } else {
+      decryptedMessage = base64Decode('');
     }
-    message.contents = utf8.decode(decryptedMessage);
+
+    if (replacePreKey) {
+      // remove one-time pre key from the server
+      _replaceOneTimePreKey(myId!);
+    }
+    message.contents = {'text': utf8.decode(decryptedMessage)};
     return message;
   }
 
   Future<Message> decryptMessageFile(Message message) async {
     String? recipientId = message.from;
+    String? myId = message.to;
+    String fileContents = message.contents['encrypted_content'];
+    var signalType = message.signalType;
+
     SignalProtocolAddress recipientAddress = SignalProtocolAddress(
         recipientId!, await _retrieveDeviceId(recipientId));
-    if (!await _user.sessionStore.containsSession(recipientAddress)) {
-      createSecureSession(recipientId, recipientAddress);
-    }
-    SessionCipher cipher = createSessionCipher(recipientAddress);
-    final Uint8List serializedCiphertext =
-        Uint8List.fromList(base64Decode(message.fileContents!));
-    late Uint8List decryptedFile;
 
-    try {
-      if (message.signalType == CiphertextMessage.whisperType) {
-        // message encrypted with an established session
-        final SignalMessage deserializedCiphertext =
-            SignalMessage.fromSerialized(serializedCiphertext);
-        decryptedFile = await cipher.decryptFromSignal(deserializedCiphertext);
-      } else if (message.signalType == CiphertextMessage.prekeyType) {
-        //message encrypted with a session that was not established previously
-        PreKeySignalMessage preKeySignalMessage =
-            PreKeySignalMessage(serializedCiphertext);
-        decryptedFile = await cipher.decrypt(preKeySignalMessage);
-      } else {
-        print("Invalid CiphertextMessage object.");
-        print('Type of ciphertext is ');
-        print(message.signalType);
-      }
-    } on UntrustedIdentityException catch (e) {
-      // Handle the UntrustedIdentityException, e.g., by prompting the user to accept the new identity key
-      print(
-          "Sender's identity key has changed. Please verify and accept the new identity key.\n$e");
+    bool replacePreKey = false;
+    if (!await _user.sessionStore.containsSession(recipientAddress)) {
+      //message encrypted with a session that was not established previously
+      await createSecureSession(recipientId, recipientAddress);
+      replacePreKey = true;
     }
+
+    // decrypt message
+    SessionCipher cipher = createSessionCipher(recipientAddress);
+    final Uint8List serializedCiphertext = base64Decode(fileContents);
+    Uint8List decryptedFileContents;
+
+    if (signalType == CiphertextMessage.whisperType) {
+      // message encrypted with an established session
+      final SignalMessage signalMessage =
+          SignalMessage.fromSerialized(serializedCiphertext);
+      decryptedFileContents = await cipher.decryptFromSignal(signalMessage);
+    } else if (signalType == CiphertextMessage.prekeyType) {
+      //message encrypted with a session that was not established previously
+      PreKeySignalMessage preKeySignalMessage =
+          PreKeySignalMessage(serializedCiphertext);
+      decryptedFileContents = await cipher.decrypt(preKeySignalMessage);
+    } else {
+      decryptedFileContents = base64Decode('');
+    }
+    if (replacePreKey) {
+      // remove one-time pre key from the server
+      _replaceOneTimePreKey(myId!);
+    }
+
+    Uint8List decryptedDescriptionLengthBytes =
+        decryptedFileContents.sublist(0, 4);
+    int descriptionLength =
+        ByteData.view(decryptedDescriptionLengthBytes.buffer).getInt32(0);
+
+    Uint8List decryptedDescriptionBytes =
+        decryptedFileContents.sublist(4, 4 + descriptionLength);
+    Uint8List decryptedFileBytes =
+        decryptedFileContents.sublist(4 + descriptionLength);
+
     message.filePath = await _storeDecryptedFile(
-        decryptedFile, message.contentType, message.timestamp);
+        decryptedFileBytes, message.contentType, message.timestamp);
+    message.contents['text'] = utf8.decode(decryptedDescriptionBytes);
 
     return message;
+  }
+
+  Future<Message> decryptMessage(Message message) async {
+    if (message.contentType == ContentType.text) {
+      // for text messages
+      return await decryptMessageText(message);
+    } else if (message.contentType == ContentType.image) {
+      // for image files; decrypt the file and it's description if it exists
+      return await decryptMessageFile(message);
+    }
+    return decryptMessageText(message);
   }
 
   Future<String> _storeDecryptedFile(Uint8List decryptedFile,
@@ -219,22 +293,6 @@ class LocalEncryptionService {
     final newFile = await File(decryptedFilePath).writeAsBytes(decryptedFile);
     print("New file created: ${newFile.path}");
     return newFile.path;
-  }
-
-  Future<Message> decryptMessage(Message message) async {
-    if (message.contentType == ContentType.text) {
-      // for text messages
-      return await decryptMessageText(message);
-    } else if (message.contentType == ContentType.image) {
-      // for image files; decrypt the file and it's description if it exists
-      Message decryptedImageContent = await decryptMessageFile(message);
-      if (message.contents.isNotEmpty) {
-        Message encryptedImageDescription = await decryptMessageText(message);
-        decryptedImageContent.contents = encryptedImageDescription.contents;
-      }
-      return decryptedImageContent;
-    }
-    return decryptMessageText(message);
   }
 
   Future<int> _retrieveDeviceId(String userId) async {

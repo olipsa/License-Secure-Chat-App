@@ -30,16 +30,12 @@ class MessageService implements IMessageService {
   Future<Message> send(Message message) async {
     var data = message.toJson();
     data.remove('file_path');
-    if (message.contentType == ContentType.text) {
-      data.remove('file_contents');
-    }
 
     Map record = await r
         .table('messages')
         .insert(data, {'return_changes': true}).run(_connection);
     Message returnedMessage =
         Message.fromJson(record['changes'].first['new_val']);
-    returnedMessage.contents = message.contents;
     return returnedMessage;
   }
 

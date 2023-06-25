@@ -52,10 +52,19 @@ class CompositionRoot {
     _messageService = MessageService(_r, _connection);
     _typingNotification = TypingNotification(_r, _connection, _userService);
     _db = await LocalDatabaseFactory().createDatabase();
+    // _db.delete('chats');
+    // _db.delete('messages');
+    // _db.delete('user_identity');
+    // _db.delete('trusted_keys');
+    // _db.delete('metadata');
+    // _db.delete('pre_keys');
+    // _db.delete('signed_pre_keys');
+    // _db.delete('sessions');
     _datasource = SqfliteDatasource(_db);
     final sharedPref = await SharedPreferences.getInstance();
     _localCache = LocalCache(sharedPref);
-    _encryptedUser = EncryptedUser();
+    _encryptedUser = EncryptedUser(_db);
+    await _encryptedUser.initEncryptedUser();
     _remoteEncryptionService = RemoteEncryptionService(_r, _connection);
     _localEncryptionService =
         LocalEncryptionService(_remoteEncryptionService, _encryptedUser);
@@ -66,12 +75,10 @@ class CompositionRoot {
       _userService,
     );
     _chatsCubit = ChatsCubit(viewModel);
-    _db.delete('chats');
-    _db.delete('messages');
   }
 
   static Widget start() {
-    _localCache.remove('USER');
+    // _localCache.remove('USER');
     final user = _localCache.fetch('USER');
     return user.isEmpty
         ? composeOnboardingUi()

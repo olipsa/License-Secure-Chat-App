@@ -21,7 +21,7 @@ class LocalMessage {
       'id': message.id,
       'sender': message.from,
       'receiver': message.to,
-      'contents': message.contents,
+      'contents': message.contents['text'],
       'receipt': receipt.value(),
       'received_at': message.timestamp.toString(),
       'content_type': message.contentType.value(),
@@ -34,7 +34,7 @@ class LocalMessage {
         from: json['sender'],
         to: json['receiver'],
         timestamp: DateTime.parse(json['received_at']),
-        contents: json['contents'],
+        contents: {'text': json['contents']},
         contentType: ContentTypeParsing.fromString(json['content_type']),
         filePath: json['file_path']);
 

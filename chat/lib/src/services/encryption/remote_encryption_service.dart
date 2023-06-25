@@ -72,4 +72,13 @@ class RemoteEncryptionService implements IRemoteEncryptionService {
     int deviceId = foundKey['deviceId'];
     return deviceId;
   }
+
+  @override
+  Future<void> updateOneTimePreKey(
+      String userId, ECPublicKey newPreKey, int preKeyId) async {
+    await _r.table('public_keys').filter({'user_id': userId}).update({
+      'preKeyId': preKeyId,
+      'preKeyPublic': newPreKey.serialize()
+    }).run(_connection);
+  }
 }

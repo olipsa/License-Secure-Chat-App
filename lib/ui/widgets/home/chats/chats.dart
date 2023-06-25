@@ -96,7 +96,12 @@ class _ChatsState extends State<Chats> {
             );
           }
 
-          return Text(chat.mostRecent!.message.contents,
+          return Text(
+              chat.mostRecent!.message.contentType == ContentType.text
+                  ? chat.mostRecent!.message.contents['text']
+                  : chat.mostRecent!.message.from == widget.user.id
+                      ? 'You sent a photo'
+                      : '${chat.from.username} sent a photo',
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               softWrap: true,

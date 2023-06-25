@@ -1,36 +1,37 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter_chat_app/data/encrypted_storage/sqflite_identity_key_store.dart';
+import 'package:flutter_chat_app/data/encrypted_storage/sqflite_pre_key_store.dart';
+import 'package:flutter_chat_app/data/encrypted_storage/sqflite_session_store.dart';
+import 'package:flutter_chat_app/data/encrypted_storage/sqflite_signed_pre_key_store.dart';
 import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
+import 'package:sqflite/sqflite.dart';
 
 class EncryptedUser {
-  late IdentityKeyPair identityKeyPair;
-  late int registrationId;
+  Database db;
   late int deviceId;
-  late InMemoryIdentityKeyStore identityKeyStore;
-  late InMemoryPreKeyStore preKeyStore;
-  late InMemorySignedPreKeyStore signedPreKeyStore;
-  late InMemorySessionStore sessionStore;
+  late SqfliteIdentityKeyStore identityKeyStore;
+  late SqflitePreKeyKeyStore preKeyStore;
+  late SqfliteSignedPreKeyStore signedPreKeyStore;
+  late SqfliteSessionStore sessionStore;
 
-  late List<PreKeyRecord> preKeys;
+  int preKeyId = 0;
+  int signedPreKeyId = 0;
   late SignedPreKeyRecord signedPreKey;
-  late PreKeyBundle preKeyBundle;
 
-  EncryptedUser();
+  EncryptedUser(this.db);
 
-  Future<void> initEncryptedUser(String? userId) async {
-    identityKeyPair = generateIdentityKeyPair();
-    registrationId = generateRegistrationId(false);
-    identityKeyStore =
-        InMemoryIdentityKeyStore(identityKeyPair, registrationId);
+  Future<void> initEncryptedUser() async {
+    identityKeyStore = await SqfliteIdentityKeyStore.create(db);
+    preKeyStore = await SqflitePreKeyKeyStore.create(db);
+    signedPreKeyStore = await SqfliteSignedPreKeyStore.create(
+        db, identityKeyStore.identityKeyPair);
+    sessionStore = await SqfliteSessionStore.create(db);
 
     String? deviceIdString = await _getDeviceId();
     deviceId = int.parse(deviceIdString!.replaceAll(RegExp(r'[^\d]'), ''));
-
-    preKeyStore = InMemoryPreKeyStore();
-    signedPreKeyStore = InMemorySignedPreKeyStore();
-    sessionStore = InMemorySessionStore();
+    preKeyId = await preKeyStore.getCurrentPreKeyId();
   }
 
   Future<String?> _getDeviceId() async {
@@ -44,26 +45,16 @@ class EncryptedUser {
     }
   }
 
-  createPreKeyBundle() {
-    // one-time pre-keys -> OTPKs
-    int preKeyId = 0;
-    preKeys = generatePreKeys(preKeyId, 110);
+  Future<PreKeyBundle> createPreKeyBundle() async {
+    // Called only when user onboarded for the first time
 
-    // Find the pre-key with the matching ID from the preKeys list
-    late PreKeyRecord matchingPreKey;
-    for (PreKeyRecord preKey in preKeys) {
-      preKeyStore.storePreKey(preKey.id, preKey);
-      if (preKey.id == preKeyId) {
-        matchingPreKey = preKey;
-        break;
-      }
-    }
+    IdentityKeyPair identityKeyPair = identityKeyStore.identityKeyPair;
+    int registrationId = identityKeyStore.localRegistrationId;
+    PreKeyRecord matchingPreKey = await preKeyStore.loadPreKey(preKeyId);
+    SignedPreKeyRecord signedPreKey =
+        await signedPreKeyStore.loadSignedPreKey(signedPreKeyId);
 
-    int signedPreKeyId = 0;
-    signedPreKey = generateSignedPreKey(identityKeyPair, signedPreKeyId);
-    signedPreKeyStore.storeSignedPreKey(signedPreKeyId, signedPreKey);
-
-    preKeyBundle = PreKeyBundle(
+    return PreKeyBundle(
       registrationId,
       deviceId,
       preKeyId,

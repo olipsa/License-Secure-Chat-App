@@ -79,7 +79,7 @@ class SenderMessage extends StatelessWidget {
         position: DecorationPosition.background,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-          child: Text(message.contents.trim(),
+          child: Text(message.contents['text'].trim(),
               softWrap: true,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   height: 1.2,
@@ -117,10 +117,10 @@ class SenderMessage extends StatelessWidget {
                           );
                         },
                       )),
-                  if (message.contents.trim().isNotEmpty)
+                  if (message.contents['text'].trim().isNotEmpty)
                     const SizedBox(height: 8),
-                  if (message.contents.trim().isNotEmpty)
-                    Text(message.contents.trim(),
+                  if (message.contents['text'].trim().isNotEmpty)
+                    Text(message.contents['text'].trim(),
                         softWrap: true,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             height: 1.2,

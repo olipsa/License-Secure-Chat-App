@@ -17,7 +17,6 @@ class ReceiptService implements IReceiptService {
 
   @override
   dispose() {
-    print('_controller closed');
     _changefeed?.cancel();
     _controller.close();
   }

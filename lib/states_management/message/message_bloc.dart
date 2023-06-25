@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:chat/chat.dart';
@@ -33,9 +34,9 @@ class MessageBloc extends Bloc<MessageEvent, MessageState> {
       Message ciphertext =
           await _localEncryptionService.encryptMessage(event.message);
       var message = await _messageService.send(ciphertext);
-      // re-create the original message to store it in the local db
-      message.contents = plaintext.contents;
+      // re-create message to store it in local db
       message.filePath = plaintext.filePath;
+      message.contents = plaintext.contents;
       yield MessageState.sent(message);
     }
   }

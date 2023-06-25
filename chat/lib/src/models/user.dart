@@ -8,12 +8,14 @@ class User {
   bool active;
   DateTime? lastseen;
   String? phoneNumber;
+  String? passphrase;
 
   User(
       {required this.username,
       required this.photoUrl,
       required this.active,
       required this.lastseen,
+      this.passphrase,
       this.phoneNumber});
 
   toJson() => {
@@ -22,6 +24,7 @@ class User {
         'active': active,
         'lastseen': lastseen,
         'phone_number': phoneNumber,
+        'passphrase': passphrase
       };
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -30,7 +33,8 @@ class User {
         photoUrl: json['photoUrl'],
         active: json['active'],
         lastseen: json['lastseen'],
-        phoneNumber: json['phone_number']);
+        phoneNumber: json['phone_number'],
+        passphrase: json['passphrase']);
     user._id = json['id'];
     return user;
   }

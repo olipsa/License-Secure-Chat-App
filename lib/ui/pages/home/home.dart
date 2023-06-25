@@ -8,9 +8,11 @@ import 'package:flutter_chat_app/states_management/home/chats_cubit.dart';
 import 'package:flutter_chat_app/states_management/home/home_cubit.dart';
 import 'package:flutter_chat_app/states_management/home/home_state.dart';
 import 'package:flutter_chat_app/states_management/message/message_bloc.dart';
+import 'package:flutter_chat_app/theme.dart';
 import 'package:flutter_chat_app/ui/pages/home/home_router.dart';
 import 'package:flutter_chat_app/ui/widgets/home/active/active_users.dart';
 import 'package:flutter_chat_app/ui/widgets/home/chats/chats.dart';
+import 'package:flutter_chat_app/ui/widgets/home/passphrase_display.dart';
 import 'package:flutter_chat_app/ui/widgets/home/qr/qr_code.dart';
 import 'package:flutter_chat_app/ui/widgets/shared/header_status.dart';
 import 'package:local_auth/local_auth.dart';
@@ -44,6 +46,9 @@ class _HomeState extends State<Home>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    TextStyle textColor = isLightTheme(context)
+        ? TextStyle(color: Colors.black)
+        : TextStyle(color: Colors.white);
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -53,25 +58,25 @@ class _HomeState extends State<Home>
           actions: [
             PopupMenuButton<String>(
               itemBuilder: (BuildContext context) => [
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'option1',
                   child: Text(
                     'Add phone number',
-                    style: TextStyle(color: Colors.white),
+                    style: textColor,
                   ),
                 ),
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'option2',
                   child: Text(
                     'View security passphrase',
-                    style: TextStyle(color: Colors.white),
+                    style: textColor,
                   ),
                 ),
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'option3',
                   child: Text(
                     'Delete account',
-                    style: TextStyle(color: Colors.white),
+                    style: textColor,
                   ),
                 ),
               ],
@@ -84,10 +89,54 @@ class _HomeState extends State<Home>
                 side: BorderSide.none,
               ),
               offset: const Offset(0, 40),
-              color: kBubbleDark,
+              color: isLightTheme(context)
+                  ? Color.fromARGB(255, 233, 232, 232)
+                  : kActiveUsersDark,
               onSelected: (value) {
                 // Handle the selected option here
                 print('Selected option: $value');
+                if (value == 'option2') {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => PassphraseWidget(
+                              passphrase: widget.me.passphrase!)));
+                } else if (value == 'option3') {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text('Delete account',
+                            style: isLightTheme(context)
+                                ? TextStyle(color: Colors.black)
+                                : TextStyle(color: Colors.white)),
+                        content: Text(
+                            'Are you sure you want to delete your account? This action is irreversible.',
+                            style: isLightTheme(context)
+                                ? TextStyle(color: Colors.black)
+                                : TextStyle(color: Colors.white)),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(); // Close the dialog
+                            },
+                            child: Text('No'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              // Handle account deletion here
+                              Navigator.of(context).pop(); // Close the dialog
+                            },
+                            child: Text(
+                              'Yes, delete account',
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
               },
             )
           ],

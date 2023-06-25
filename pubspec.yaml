@@ -35,8 +35,10 @@ dependencies:
     path: ./chat
   cloud_firestore: ^4.8.1
   contacts_service: ^0.6.3
+  crypto: ^3.0.3
   cupertino_icons: ^1.0.5
   device_info_plus: ^9.0.2
+  english_words: ^4.0.0
   equatable: ^2.0.5
   exif: ^3.1.4
   firebase_auth: ^4.6.3

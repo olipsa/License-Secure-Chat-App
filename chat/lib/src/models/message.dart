@@ -1,5 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
+import 'dart:convert';
+
 enum ContentType { text, image, video }
 
 extension ContentTypeParsing on ContentType {
@@ -18,12 +20,12 @@ class Message {
   final String? from;
   final String? to;
   final DateTime timestamp;
-  String contents;
+  Map<String, dynamic> contents;
   String? _id;
   int? signalType;
   ContentType contentType;
   String? filePath = '';
-  String? fileContents = '';
+  // Map<String, dynamic>? fileContents;
 
   Message(
       {required this.from,
@@ -32,31 +34,28 @@ class Message {
       required this.contents,
       required this.contentType,
       this.signalType,
-      this.fileContents,
       this.filePath});
 
   toJson() => {
         'from': from,
         'to': to,
         'timestamp': timestamp,
-        'contents': contents,
+        'contents': contents['encrypted_content'],
         'signal_type': signalType,
         'content_type': contentType.value(),
-        'file_contents': fileContents,
         'file_path': filePath
       };
 
-  factory Message.fromJson(Map<String, dynamic> json) {
+  factory Message.fromJson(Map<String, dynamic> messageJson) {
     var message = Message(
-        from: json['from'],
-        to: json['to'],
-        timestamp: json['timestamp'],
-        contents: json['contents'],
-        signalType: json['signal_type'],
-        contentType: ContentTypeParsing.fromString(json['content_type']),
-        fileContents: json['file_contents'],
-        filePath: json['file_path']);
-    message._id = json['id'];
+        from: messageJson['from'],
+        to: messageJson['to'],
+        timestamp: messageJson['timestamp'],
+        contents: {'encrypted_content': messageJson['contents']},
+        signalType: messageJson['signal_type'],
+        contentType: ContentTypeParsing.fromString(messageJson['content_type']),
+        filePath: messageJson['file_path']);
+    message._id = messageJson['id'];
     return message;
   }
 }

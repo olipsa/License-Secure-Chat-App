@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:chat/chat.dart';
@@ -114,14 +115,21 @@ class _SendPictureState extends State<SendPicture> {
         ));
   }
 
-  _sendImage() {
+  _sendImage() async {
     if (widget.imagePath == '') return;
+
+    final imageBytes = await File(widget.imagePath).readAsBytes();
+    final description = _textEditingController.text;
+    Map<String, dynamic> imageWithDescription = {
+      "file": imageBytes,
+      "text": description,
+    };
 
     final message = Message(
         from: widget.me.id,
         to: widget.receiver.id,
         timestamp: DateTime.now(),
-        contents: _textEditingController.text,
+        contents: imageWithDescription,
         contentType: ContentType.image,
         filePath: widget.imagePath);
     final sendMessageEvent = MessageEvent.onMessageSent(message);

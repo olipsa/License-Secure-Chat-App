@@ -295,12 +295,15 @@ class _MessageThreadState extends State<MessageThread> {
 
   _sendMessage() {
     if (_textEditingController.text.trim().isEmpty) return;
+    Map<String, dynamic> text = {
+      "text": _textEditingController.text,
+    };
 
     final message = Message(
         from: widget.me.id,
         to: receiver.id,
         timestamp: DateTime.now(),
-        contents: _textEditingController.text,
+        contents: text,
         contentType: ContentType.text);
     final sendMessageEvent = MessageEvent.onMessageSent(message);
     widget.messageBloc.add(sendMessageEvent);
