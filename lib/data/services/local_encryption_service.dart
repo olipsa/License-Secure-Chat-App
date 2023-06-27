@@ -252,17 +252,20 @@ class LocalEncryptionService {
   Future<String> _storeDecryptedFile(Uint8List decryptedFile,
       ContentType contentType, DateTime timestamp) async {
     String decryptedFileType = '';
+    String extension = '';
     switch (contentType) {
       case ContentType.image:
         decryptedFileType = 'IMG';
+        extension = 'jpg';
         break;
       case ContentType.video:
         decryptedFileType = 'VID';
+        extension = 'mp4';
         break;
       default:
     }
-    final directory = await getApplicationDocumentsDirectory();
-    List<FileSystemEntity> files = directory.listSync();
+    final directory = await getExternalStorageDirectory();
+    List<FileSystemEntity> files = directory!.listSync();
     var dateFormat = DateFormat('yyyyMMdd').format(timestamp);
     var prefixTypeDate = '$decryptedFileType-$dateFormat';
     List<File> filesWithPrefix = files
@@ -285,10 +288,10 @@ class LocalEncryptionService {
       int nextNumber = currentNumber + 1;
       String nextNumberString = nextNumber.toString().padLeft(4, '0');
       String newFileName = '$prefixTypeDate-$nextNumberString';
-      decryptedFilePath = '${directory.path}/$newFileName.jpg';
+      decryptedFilePath = '${directory.path}/$newFileName.$extension';
     } else {
       // no other files sent at this date
-      decryptedFilePath = '${directory.path}/$prefixTypeDate-0000.jpg';
+      decryptedFilePath = '${directory.path}/$prefixTypeDate-0000.$extension';
     }
     final newFile = await File(decryptedFilePath).writeAsBytes(decryptedFile);
     print("New file created: ${newFile.path}");

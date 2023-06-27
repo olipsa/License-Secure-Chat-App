@@ -16,6 +16,7 @@ import 'package:flutter_chat_app/states_management/onboarding/onboarding_cubit.d
 import 'package:flutter_chat_app/states_management/onboarding/profile_image_cubit.dart';
 import 'package:flutter_chat_app/states_management/receipt/receipt_bloc.dart';
 import 'package:flutter_chat_app/states_management/typing/typing_notification_bloc.dart';
+import 'package:flutter_chat_app/ui/pages/camera/send_video.dart';
 import 'package:flutter_chat_app/ui/pages/home/home.dart';
 import 'package:flutter_chat_app/ui/pages/home/home_router.dart';
 import 'package:flutter_chat_app/ui/pages/message_thread/message_thread.dart';
@@ -121,7 +122,8 @@ class CompositionRoot {
     ReceiptBloc receiptBloc = ReceiptBloc(receiptService);
     IMessageThreadRouter router = MessageThreadRouter(
         showMessageThread: composeMessageThreadUi,
-        showPicturePreview: composePicturePreviewUi);
+        showPicturePreview: composePicturePreviewUi,
+        showVideoPreview: composeVideoPreviewUi);
 
     return MultiBlocProvider(
         providers: [
@@ -140,7 +142,8 @@ class CompositionRoot {
 
     IMessageThreadRouter router = MessageThreadRouter(
         showMessageThread: composeMessageThreadUi,
-        showPicturePreview: composePicturePreviewUi);
+        showPicturePreview: composePicturePreviewUi,
+        showVideoPreview: composeVideoPreviewUi);
 
     return MultiBlocProvider(
         providers: [
@@ -148,5 +151,23 @@ class CompositionRoot {
         ],
         child: SendPicture(
             imagePath!, me, receiver, _messageBloc, router, chatId));
+  }
+
+  static Widget composeVideoPreviewUi(User receiver, User me, String? videoPath,
+      {String? chatId}) {
+    ChatViewModel viewModel = ChatViewModel(_datasource);
+    MessageThreadCubit messageThreadCubit = MessageThreadCubit(viewModel);
+
+    IMessageThreadRouter router = MessageThreadRouter(
+        showMessageThread: composeMessageThreadUi,
+        showPicturePreview: composePicturePreviewUi,
+        showVideoPreview: composeVideoPreviewUi);
+
+    return MultiBlocProvider(
+        providers: [
+          BlocProvider(create: (BuildContext context) => messageThreadCubit)
+        ],
+        child:
+            SendVideo(videoPath!, me, receiver, _messageBloc, router, chatId));
   }
 }

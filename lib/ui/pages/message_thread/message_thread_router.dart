@@ -13,6 +13,12 @@ abstract class IMessageThreadRouter {
     User me,
     String? imagePath,
   );
+  Future<void> onShowVideoPreview(
+    BuildContext context,
+    User receiver,
+    User me,
+    String? videoPath,
+  );
 }
 
 class MessageThreadRouter implements IMessageThreadRouter {
@@ -23,9 +29,16 @@ class MessageThreadRouter implements IMessageThreadRouter {
     User me,
     String? imagePath,
   ) showPicturePreview;
+  final Widget Function(
+    User receiver,
+    User me,
+    String? imagePath,
+  ) showVideoPreview;
 
   MessageThreadRouter(
-      {required this.showMessageThread, required this.showPicturePreview});
+      {required this.showMessageThread,
+      required this.showPicturePreview,
+      required this.showVideoPreview});
 
   @override
   Future<void> onShowMessageThread(
@@ -45,5 +58,15 @@ class MessageThreadRouter implements IMessageThreadRouter {
         context,
         MaterialPageRoute(
             builder: (_) => showPicturePreview(receiver, me, imagePath)));
+  }
+
+  @override
+  Future<void> onShowVideoPreview(
+      BuildContext context, User receiver, User me, String? videoPath,
+      {String? chatId}) {
+    return Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (_) => showVideoPreview(receiver, me, videoPath)));
   }
 }

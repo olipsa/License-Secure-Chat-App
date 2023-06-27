@@ -68,6 +68,8 @@ dependencies:
   rethink_db_ns: ^0.0.4
   shared_preferences: ^2.1.2
   sqflite: ^2.2.8+4
+  video_player: ^2.6.1
+  video_thumbnail: ^0.5.3
 
 dev_dependencies:
   flutter_lints: ^2.0.0

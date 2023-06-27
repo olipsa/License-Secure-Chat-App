@@ -101,16 +101,50 @@ class _QrCodeScannerState extends State<QrCodeScanner> {
                                 ?.copyWith(
                                     fontWeight: FontWeight.bold, fontSize: 15)),
                       )),
-            Expanded(
-              flex: 1,
-              child: SingleChildScrollView(
-                child: Center(
-                  child: _timerExpired
-                      ? Column(
-                          children: [
-                            SizedBox(height: 20),
-                            Text(
-                                'Not working? Paste the user ID to start a secure communication:',
+            SingleChildScrollView(
+              child: Center(
+                child: _timerExpired
+                    ? Column(
+                        children: [
+                          SizedBox(height: 20),
+                          Text(
+                              'Not working? Paste the user ID to start a secure communication:',
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .displaySmall
+                                  ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15)),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 5,
+                              ),
+                              Expanded(child: _buildAddUserInput(context)),
+                              IconButton(
+                                  onPressed: () {
+                                    _routeToMessageThread(
+                                        _textEditingController.text.trim());
+                                  },
+                                  icon: Icon(
+                                    Icons.add_rounded,
+                                    color: kPrimary,
+                                  ))
+                            ],
+                          )
+                        ],
+                      )
+                    : scannedUid == null
+                        // no barcode scanned
+                        ? Container(
+                            margin: EdgeInsets.only(
+                                top: 50, left: 8, right: 8, bottom: 8),
+                            child: Text(
+                                'Scan the QR code of your friends to add them to your contacts list',
                                 textAlign: TextAlign.center,
                                 style: Theme.of(context)
                                     .textTheme
@@ -118,59 +152,23 @@ class _QrCodeScannerState extends State<QrCodeScanner> {
                                     ?.copyWith(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 15)),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              children: [
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Expanded(child: _buildAddUserInput(context)),
-                                IconButton(
-                                    onPressed: () {
-                                      _routeToMessageThread(
-                                          _textEditingController.text.trim());
-                                    },
-                                    icon: Icon(
-                                      Icons.add_rounded,
-                                      color: kPrimary,
-                                    ))
-                              ],
-                            )
-                          ],
-                        )
-                      : scannedUid == null
-                          // no barcode scanned
-                          ? Container(
-                              margin: EdgeInsets.only(
-                                  top: 50, left: 8, right: 8, bottom: 8),
-                              child: Text(
-                                  'Scan the QR code of your friends to add them to your contacts list',
-                                  textAlign: TextAlign.center,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .displaySmall
-                                      ?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15)),
-                            )
-                          : // barcode scanned but invalid
-                          Container(
-                              margin: EdgeInsets.only(
-                                  top: 50, left: 8, right: 8, bottom: 8),
-                              child: Text('Invalid user',
-                                  textAlign: TextAlign.center,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .displaySmall
-                                      ?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15)),
-                            ),
-                ),
+                          )
+                        : // barcode scanned but invalid
+                        Container(
+                            margin: EdgeInsets.only(
+                                top: 50, left: 8, right: 8, bottom: 8),
+                            child: Text('Invalid user',
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .displaySmall
+                                    ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15)),
+                          ),
               ),
-            )
+            ),
+            SizedBox(height: 20),
           ],
         ),
       ),

@@ -44,6 +44,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       'passphrase': passphrase
     };
     await _localCache.save('USER', userJson);
+    createdUser.passphrase = passphrase;
 
     var preKeyBundle = await _encryptedUser.createPreKeyBundle();
     await _remoteEncryptionService.storePreKeyBundle(
@@ -51,6 +52,30 @@ class OnboardingCubit extends Cubit<OnboardingState> {
 
     emit(OnboardingSuccess(createdUser));
   }
+
+  // Future<void> recover(String name, File profileImage,
+  //     {String? phoneNumber}) async {
+  //   emit(Loading());
+  //   final url = await _imageUploader.uploadImage(profileImage);
+  //   final user = await _userService.fetch(id);
+  //   _userService.update(user)
+  //   final userJson = {
+  //     'username': user.username,
+  //     'active': true,
+  //     'photoUrl': photoUrl,
+  //     'id': user.id,
+  //     'phoneNumber': user.phoneNumber,
+  //     'passphrase': passphrase
+  //   };
+  //   await _localCache.save('USER', userJson);
+  //   createdUser.passphrase = passphrase;
+
+  //   var preKeyBundle = await _encryptedUser.createPreKeyBundle();
+  //   await _remoteEncryptionService.storePreKeyBundle(
+  //       createdUser.id, preKeyBundle);
+
+  //   emit(OnboardingSuccess(createdUser));
+  // }
 
   String _generateSecurityPassphrase(int wordCount) {
     List<String> selectedWords = [];

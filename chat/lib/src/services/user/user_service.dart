@@ -74,7 +74,8 @@ class UserService implements IUserService {
     await r.table('users').update({
       'id': user.id,
       'active': user.active,
-      'lastseen': user.lastseen
+      'lastseen': user.lastseen,
+      'username': user.username
     }).run(_connection!);
   }
 }

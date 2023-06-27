@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 
 import 'package:chat/chat.dart';
@@ -28,6 +30,8 @@ class CameraScreenState extends State<CameraScreen> {
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
   bool _isImageCapturing = false;
+  bool _isRecording = false;
+  String? _videoPath;
   String? _photoPath;
   String? chatId;
 
@@ -129,17 +133,29 @@ class CameraScreenState extends State<CameraScreen> {
                       _openGallery();
                     },
                   ),
-                  FloatingActionButton(
-                    heroTag: 'button_camera',
-                    backgroundColor: kPrimary,
-                    child: _isImageCapturing
-                        ? const CircularProgressIndicator(
-                            color: Colors.black,
-                          )
-                        : const Icon(Icons.camera),
-                    onPressed: () async {
-                      if (!_isImageCapturing) _captureImage();
+                  GestureDetector(
+                    onLongPress: () {
+                      if (!_isRecording) {
+                        _startVideoRecording();
+                      }
                     },
+                    onLongPressEnd: (details) {
+                      if (_isRecording) {
+                        _stopVideoRecording();
+                      }
+                    },
+                    child: FloatingActionButton(
+                      heroTag: 'button_camera',
+                      backgroundColor: kPrimary,
+                      child: _isImageCapturing
+                          ? const CircularProgressIndicator(
+                              color: Colors.black,
+                            )
+                          : const Icon(Icons.camera),
+                      onPressed: () async {
+                        if (!_isImageCapturing) _captureImage();
+                      },
+                    ),
                   ),
                   FloatingActionButton(
                     heroTag: 'button_flip_camera',
@@ -172,6 +188,7 @@ class CameraScreenState extends State<CameraScreen> {
   }
 
   void _captureImage() async {
+    if (_isRecording) return;
     setState(() {
       _isImageCapturing = true;
     });
@@ -192,9 +209,48 @@ class CameraScreenState extends State<CameraScreen> {
         _isImageCapturing = false;
       });
     }
-    if (_photoPath != null) {
+    if (_photoPath != null && !_isRecording) {
       widget.router.onShowPicturePreview(
           context, widget.receiver, widget.me, _photoPath);
+    }
+  }
+
+  Future<void> _startVideoRecording() async {
+    if (!_controller.value.isInitialized) {
+      return;
+    }
+    try {
+      await _initializeControllerFuture;
+      await _controller.startVideoRecording();
+      setState(() {
+        _isRecording = true;
+      });
+    } on CameraException catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> _stopVideoRecording() async {
+    if (!_controller.value.isRecordingVideo) {
+      return;
+    }
+
+    late XFile video;
+
+    try {
+      video = await _controller.stopVideoRecording();
+    } on CameraException catch (e) {
+      print(e);
+    } finally {
+      setState(() {
+        _isRecording = false;
+        _videoPath = video.path;
+      });
+    }
+
+    if (_videoPath != null) {
+      widget.router
+          .onShowVideoPreview(context, widget.receiver, widget.me, _videoPath);
     }
   }
 }

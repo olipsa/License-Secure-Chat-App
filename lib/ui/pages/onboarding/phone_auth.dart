@@ -213,28 +213,7 @@ class PhoneAuthState extends State<PhoneAuth> {
         _phoneNumber!.number.length > _country.maxLength) {
       return false;
     }
-    if (await _isPhoneNumberRegistered()) {
-      _phoneError = 'This phone number is already registered.';
-      return false;
-    }
     return true;
-  }
-
-  Future<bool> _isPhoneNumberRegistered() async {
-    final firestore = FirebaseFirestore.instance;
-    DocumentSnapshot snapshot;
-    try {
-      snapshot = await firestore
-          .collection('phone_numbers')
-          .doc(_phoneNumber!.completeNumber)
-          .get();
-    } catch (e) {
-      print("Error retrieving phone number document: $e");
-      // Handle the error and retry logic here, such as waiting for the network connection to be available again.
-      return false;
-    }
-
-    return snapshot.exists;
   }
 
   Future<String> _sendSmsCode(String phoneNumber) async {
