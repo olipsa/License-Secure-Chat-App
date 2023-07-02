@@ -1,7 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
 class User {
-  String? get id => _id;
   String username;
   String? photoUrl;
   String? _id;
@@ -9,6 +8,9 @@ class User {
   DateTime? lastseen;
   String? phoneNumber;
   String? passphrase;
+
+  set id(String? value) => _id = value;
+  String? get id => _id;
 
   User(
       {required this.username,

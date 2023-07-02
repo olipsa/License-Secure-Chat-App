@@ -30,7 +30,7 @@ class _ActiveUsersState extends State<ActiveUsers> {
   _listItem(User user) => ListTile(
         leading: ProfileImage(
             imageUrl: user.photoUrl,
-            online: true,
+            online: user.active,
             username: user.username,
             phoneNumber: user.phoneNumber),
         title: Text(

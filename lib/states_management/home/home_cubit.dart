@@ -55,6 +55,8 @@ class HomeCubit extends Cubit<HomeState> {
       users.removeWhere((element) => element.id == user.id);
       print('contact list is emitted');
       emit(HomeSuccess(users));
+    } else {
+      emit(HomeSuccess(users));
     }
   }
 

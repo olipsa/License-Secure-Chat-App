@@ -1,5 +1,6 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+// ignore_for_file: public_member_api_docs, sort_constructors_first, use_build_context_synchronously
 import 'dart:async';
+import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:chat/chat.dart';
@@ -19,6 +20,8 @@ import 'package:flutter_chat_app/ui/pages/message_thread/message_thread_router.d
 import 'package:flutter_chat_app/ui/widgets/message_thread/receiver_message.dart';
 import 'package:flutter_chat_app/ui/widgets/message_thread/sender_message.dart';
 import 'package:flutter_chat_app/ui/widgets/shared/header_status.dart';
+import 'package:flutter_sound/flutter_sound.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class MessageThread extends StatefulWidget {
   final User receiver;
@@ -50,10 +53,18 @@ class _MessageThreadState extends State<MessageThread> {
   List<LocalMessage> messages = [];
   Timer? _startTypingTimer;
   Timer? _stopTypingTimer;
+  late FocusNode messageInputFocusNode;
+  late FlutterSoundRecorder recorder;
+  bool isRecorderInit = false;
+  bool isLongPressed = false;
 
   @override
   void initState() {
     super.initState();
+    messageInputFocusNode = FocusNode();
+    messageInputFocusNode.addListener(() {
+      setState(() {});
+    });
     chatId = widget.receiver.id;
     receiver = widget.receiver;
     _updateOnMessageReceived();
@@ -62,6 +73,17 @@ class _MessageThreadState extends State<MessageThread> {
     widget.typingNotificationBloc.add(TypingNotificationEvent.onSubscribed(
         widget.me,
         usersWithChat: [receiver.id]));
+    recorder = FlutterSoundRecorder();
+    initRecorder();
+  }
+
+  Future initRecorder() async {
+    final status = await Permission.microphone.request();
+    if (status != PermissionStatus.granted) {
+      throw 'Microphone permission not granted';
+    }
+    if (!isRecorderInit) await recorder.openRecorder();
+    isRecorderInit = true;
   }
 
   @override
@@ -172,17 +194,40 @@ class _MessageThreadState extends State<MessageThread> {
                               // send button container
                               height: 45.0,
                               width: 45.0,
-                              child: RawMaterialButton(
-                                fillColor: kPrimary,
-                                shape: const CircleBorder(),
-                                elevation: 5.0,
-                                child: const Icon(
-                                  Icons.send,
-                                  color: Colors.white,
-                                ),
-                                onPressed: () {
-                                  _sendMessage();
+                              child: GestureDetector(
+                                onLongPressStart: (details) async {
+                                  setState(() {
+                                    isLongPressed = true;
+                                  });
+                                  await recorder.startRecorder(
+                                      toFile: 'voiceMessage.aac');
                                 },
+                                onLongPressEnd: (details) async {
+                                  setState(() {
+                                    isLongPressed = false;
+                                  });
+                                  String? path = await recorder.stopRecorder();
+                                  _sendVoiceMessage(path);
+                                },
+                                child: Transform.scale(
+                                  scale: isLongPressed ? 1.4 : 1.0,
+                                  child: RawMaterialButton(
+                                    fillColor: kPrimary,
+                                    shape: const CircleBorder(),
+                                    elevation: 5.0,
+                                    child: Icon(
+                                      messageInputFocusNode.hasFocus
+                                          ? Icons.send
+                                          : Icons.mic,
+                                      color: Colors.white,
+                                    ),
+                                    onPressed: () async {
+                                      if (messageInputFocusNode.hasFocus) {
+                                        _sendMessage();
+                                      } else {}
+                                    },
+                                  ),
+                                ),
                               ),
                             ),
                           ],
@@ -246,6 +291,7 @@ class _MessageThreadState extends State<MessageThread> {
         style: Theme.of(context).textTheme.bodySmall,
         cursorColor: kPrimary,
         onChanged: _sendTypingNotification,
+        focusNode: messageInputFocusNode,
         decoration: InputDecoration(
             contentPadding:
                 const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
@@ -315,6 +361,23 @@ class _MessageThreadState extends State<MessageThread> {
     _dispatchTyping(Typing.stop);
   }
 
+  _sendVoiceMessage(String? path) async {
+    if (path == null) return;
+    final voiceBytes = await File(path).readAsBytes();
+    Map<String, dynamic> voiceMessageFile = {"file": voiceBytes, "text": ''};
+
+    final message = Message(
+        from: widget.me.id,
+        to: receiver.id,
+        timestamp: DateTime.now(),
+        contents: voiceMessageFile,
+        contentType: ContentType.voice,
+        filePath: path);
+    final sendMessageEvent = MessageEvent.onMessageSent(message);
+    widget.messageBloc.add(sendMessageEvent);
+    _textEditingController.clear();
+  }
+
   void _dispatchTyping(Typing event) {
     // creates the typing event and send it
     final typing =
@@ -368,10 +431,12 @@ class _MessageThreadState extends State<MessageThread> {
 
   @override
   void dispose() {
+    messageInputFocusNode.dispose();
     _textEditingController.dispose();
     _subscription.cancel();
     _stopTypingTimer?.cancel();
     _startTypingTimer?.cancel();
+    recorder.closeRecorder();
     super.dispose();
   }
 }

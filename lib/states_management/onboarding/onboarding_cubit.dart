@@ -1,9 +1,8 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:chat/chat.dart';
-import 'package:crypto/crypto.dart';
+
 import 'package:english_words/english_words.dart';
 import 'package:flutter_chat_app/cache/local_cache.dart';
 import 'package:flutter_chat_app/data/services/image_uploader.dart';
@@ -26,15 +25,16 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     emit(Loading());
     final url = await _imageUploader.uploadImage(profileImage);
     final passphrase = _generateSecurityPassphrase(16);
-    final hashedPassphrase = _hashPassphrase(passphrase);
+
     final user = User(
         username: name,
         photoUrl: url,
         active: true,
         lastseen: DateTime.now(),
         phoneNumber: phoneNumber,
-        passphrase: hashedPassphrase);
+        passphrase: passphrase);
     final createdUser = await _userService.connect(user);
+    createdUser.passphrase = user.passphrase;
     final userJson = {
       'username': createdUser.username,
       'active': true,
@@ -44,13 +44,16 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       'passphrase': passphrase
     };
     await _localCache.save('USER', userJson);
-    createdUser.passphrase = passphrase;
 
     var preKeyBundle = await _encryptedUser.createPreKeyBundle();
     await _remoteEncryptionService.storePreKeyBundle(
         createdUser.id, preKeyBundle);
 
     emit(OnboardingSuccess(createdUser));
+  }
+
+  Future<void> deleteAccount() async {
+    // deletes account from remote
   }
 
   // Future<void> recover(String name, File profileImage,
@@ -83,11 +86,5 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       selectedWords.add(WordPair.random().asLowerCase);
     }
     return selectedWords.join(' ');
-  }
-
-  String _hashPassphrase(String passphrase) {
-    List<int> bytes = utf8.encode(passphrase);
-    Digest digest = sha256.convert(bytes);
-    return digest.toString(); // hashed passphrase
   }
 }

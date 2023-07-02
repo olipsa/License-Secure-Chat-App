@@ -1,8 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
-import 'dart:convert';
-
-enum ContentType { text, image, video }
+enum ContentType { text, image, video, voice }
 
 extension ContentTypeParsing on ContentType {
   String value() {

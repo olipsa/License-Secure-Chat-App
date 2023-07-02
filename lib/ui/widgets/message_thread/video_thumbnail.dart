@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
@@ -32,7 +31,6 @@ class _VideoState extends State<Video> {
       maxWidth: 128,
       quality: 25,
     );
-
     setState(() {});
   }
 

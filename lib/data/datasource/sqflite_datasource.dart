@@ -1,6 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:chat/chat.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 
 import 'package:flutter_chat_app/data/datasource/datasource_contract.dart';
 import 'package:flutter_chat_app/models/chat_model.dart';

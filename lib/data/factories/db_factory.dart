@@ -1,17 +1,34 @@
 // ignore_for_file: avoid_print
 
+import 'dart:math';
+
+import 'package:crypto/crypto.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 
 class LocalDatabaseFactory {
   Future<Database> createDatabase() async {
     String databasesPath = await getDatabasesPath();
-    print(databasesPath);
     String dbPath = join(databasesPath, 'secure_messenger.db');
 
     //create database tables
-    var database = await openDatabase(dbPath, version: 1, onCreate: populateDb);
+    final storage = FlutterSecureStorage();
+    String? dbPassword = (await storage.read(key: "db_pass"));
+    if (dbPassword == null) {
+      dbPassword = _generatePassword();
+      await storage.write(key: "db_pass", value: dbPassword);
+    }
+    var database = await openDatabase(dbPath,
+        version: 1, password: dbPassword, onCreate: populateDb);
     return database;
+  }
+
+  String _generatePassword() {
+    var random = Random.secure();
+    var values = List<int>.generate(16, (i) => random.nextInt(256));
+    var password = sha256.convert(values).toString();
+    return password;
   }
 
   void populateDb(Database db, int version) async {

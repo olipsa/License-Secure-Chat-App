@@ -27,4 +27,8 @@ abstract class BaseViewModel {
     final chat = Chat(chatId);
     await _datasource.addChat(chat);
   }
+
+  Future<void> deleteChat(String chatId) async {
+    await _datasource.deleteChat(chatId); //adds the message to local db
+  }
 }

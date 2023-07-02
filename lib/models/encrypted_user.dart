@@ -6,7 +6,7 @@ import 'package:flutter_chat_app/data/encrypted_storage/sqflite_pre_key_store.da
 import 'package:flutter_chat_app/data/encrypted_storage/sqflite_session_store.dart';
 import 'package:flutter_chat_app/data/encrypted_storage/sqflite_signed_pre_key_store.dart';
 import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 
 class EncryptedUser {
   Database db;

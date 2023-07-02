@@ -1,7 +1,10 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:convert';
+
 import 'package:chat/src/services/user/user_service_contract.dart';
 import 'package:chat/src/models/user.dart';
 import 'package:rethink_db_ns/rethink_db_ns.dart';
+import 'package:crypto/crypto.dart';
 
 class UserService implements IUserService {
   final Connection? _connection;
@@ -14,15 +17,34 @@ class UserService implements IUserService {
 
   @override
   Future<User> connect(User user) async {
-    var data = user.toJson();
+    String hashedPassphrase = _hashPassphrase(user.passphrase!);
+    User userInserted = User(
+        username: user.username,
+        photoUrl: user.photoUrl,
+        active: user.active,
+        lastseen: user.lastseen,
+        phoneNumber: user.phoneNumber,
+        passphrase: hashedPassphrase);
+    userInserted.id = user.id;
+
+    var data = userInserted.toJson();
+
     if (user.id != null) data['id'] = user.id;
 
     final result = await r.table('users').insert(data, {
       'conflict': 'update',
       'return_changes': true //if it's a not already existing user
     }).run(_connection!);
+    var userResult = result['changes'].first['new_val'];
+    userResult['passphrase'] = user.passphrase;
 
-    return User.fromJson(result['changes'].first['new_val']);
+    return User.fromJson(userResult);
+  }
+
+  String _hashPassphrase(String passphrase) {
+    List<int> bytes = utf8.encode(passphrase);
+    Digest digest = sha256.convert(bytes);
+    return digest.toString(); // hashed passphrase
   }
 
   @override

@@ -3,7 +3,7 @@
 import 'dart:typed_data';
 
 import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 
 class SqfliteIdentityKeyStore extends InMemoryIdentityKeyStore {
   final Database _db;

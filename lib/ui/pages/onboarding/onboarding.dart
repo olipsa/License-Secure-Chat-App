@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_app/colors.dart';
@@ -114,28 +115,38 @@ class _OnboardingState extends State<Onboarding> {
   }
 
   _logo(BuildContext context) {
+    final myGroup = AutoSizeGroup();
     return Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            '   Secure',
-            style: Theme.of(context)
-                .textTheme
-                .headlineSmall
-                ?.copyWith(fontWeight: FontWeight.bold, color: kPrimary),
+      children: <Widget>[
+        Expanded(
+          child: Container(
+            alignment: Alignment.centerRight,
+            child: AutoSizeText(
+              '    Secure',
+              maxLines: 1,
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineSmall
+                  ?.copyWith(fontWeight: FontWeight.bold, color: kPrimary),
+            ),
           ),
-          const SizedBox(width: 8.0),
-          const Logo(),
-          const SizedBox(width: 8.0),
-          Text(
-            'Messenger',
-            style: Theme.of(context)
-                .textTheme
-                .headlineSmall
-                ?.copyWith(fontWeight: FontWeight.bold, color: kPrimary),
+        ),
+        const Logo(),
+        Expanded(
+          child: Container(
+            alignment: Alignment.centerLeft,
+            child: AutoSizeText(
+              'Messenger',
+              maxLines: 1,
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineSmall
+                  ?.copyWith(fontWeight: FontWeight.bold, color: kPrimary),
+            ),
           ),
-        ]);
+        ),
+      ],
+    );
   }
 
   String _checkInputs() {

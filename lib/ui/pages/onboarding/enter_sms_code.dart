@@ -265,45 +265,28 @@ class _EnterSmsCodePageState extends State<EnterSmsCodePage> {
   }
 
   _connectSession() async {
-    final firestore = FirebaseFirestore.instance;
-    if (await _isPhoneNumberRegistered()) {
-      ProfileImageCubit imageCubit = context.read<ProfileImageCubit>();
-      OnboardingCubit onboardingCubit = context.read<OnboardingCubit>();
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MultiBlocProvider(
-            providers: [
-              BlocProvider.value(value: imageCubit),
-              BlocProvider.value(value: onboardingCubit),
-            ],
-            child: EnterRecoveryPassphrase(),
-          ),
-        ),
-      );
-    } else {
-      try {
-        await firestore
-            .collection('phone_numbers')
-            .doc(widget._phoneNumber)
-            .set({'phone_number': widget._phoneNumber});
-      } catch (e) {
-        print("Error storing phone number in Firestore: $e");
-      }
-      File? profileImage = context.read<ProfileImageCubit>().state;
-      if (profileImage == null) {
-        String assetPath = 'assets/avatar.png';
-        final byteData = await rootBundle.load(assetPath);
-        final tempDir = await getTemporaryDirectory();
-        final tempPath = '${tempDir.path}/${assetPath.split('/').last}';
-        final file = File(tempPath);
-        await file.writeAsBytes(byteData.buffer.asUint8List(), flush: true);
-        profileImage = file;
-      }
-      await context.read<OnboardingCubit>().connect(
-          widget._username, profileImage,
-          phoneNumber: widget._phoneNumber);
+    // final firestore = FirebaseFirestore.instance;
+    // try {
+    //   await firestore
+    //       .collection('phone_numbers')
+    //       .doc(widget._phoneNumber)
+    //       .set({'phone_number': widget._phoneNumber});
+    // } catch (e) {
+    //   print("Error storing phone number in Firestore: $e");
+    // }
+    File? profileImage = context.read<ProfileImageCubit>().state;
+    if (profileImage == null) {
+      String assetPath = 'assets/avatar.png';
+      final byteData = await rootBundle.load(assetPath);
+      final tempDir = await getTemporaryDirectory();
+      final tempPath = '${tempDir.path}/${assetPath.split('/').last}';
+      final file = File(tempPath);
+      await file.writeAsBytes(byteData.buffer.asUint8List(), flush: true);
+      profileImage = file;
     }
+    await context.read<OnboardingCubit>().connect(
+        widget._username, profileImage,
+        phoneNumber: widget._phoneNumber);
   }
 
   Future<bool> _isPhoneNumberRegistered() async {

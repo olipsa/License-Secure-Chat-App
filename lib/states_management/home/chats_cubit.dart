@@ -10,4 +10,8 @@ class ChatsCubit extends Cubit<List<Chat>> {
     final chats = await viewModel.getChats();
     emit(chats);
   }
+
+  Future<void> deleteChat(String chatId) async {
+    await viewModel.deleteChat(chatId);
+  }
 }

@@ -99,9 +99,18 @@ class _ChatsState extends State<Chats> {
           return Text(
               chat.mostRecent!.message.contentType == ContentType.text
                   ? chat.mostRecent!.message.contents['text']
-                  : chat.mostRecent!.message.from == widget.user.id
-                      ? 'You sent a photo'
-                      : '${chat.from.username} sent a photo',
+                  : chat.mostRecent!.message.contentType == ContentType.image
+                      ? chat.mostRecent!.message.from == widget.user.id
+                          ? 'You sent a photo'
+                          : '${chat.from.username} sent a photo'
+                      : chat.mostRecent!.message.contentType ==
+                              ContentType.video
+                          ? chat.mostRecent!.message.from == widget.user.id
+                              ? 'You sent a video'
+                              : '${chat.from.username} sent a video'
+                          : chat.mostRecent!.message.from == widget.user.id
+                              ? 'You sent a voice message'
+                              : '${chat.from.username} sent a voice message',
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               softWrap: true,

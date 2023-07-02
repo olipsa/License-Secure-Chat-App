@@ -43,7 +43,7 @@ class CameraScreenState extends State<CameraScreen> {
   }
 
   Future<void> initializeCamera() async {
-    _controller = CameraController(widget.camera, ResolutionPreset.ultraHigh);
+    _controller = CameraController(widget.camera, ResolutionPreset.medium);
     return _controller.initialize();
   }
 
@@ -110,12 +110,28 @@ class CameraScreenState extends State<CameraScreen> {
                 FlashlightButton(_controller),
               ],
             ),
-            body: AspectRatio(
-              aspectRatio: 8.6 / 15,
-              child: _controller.value.isInitialized
-                  ? CameraPreview(_controller)
-                  : Container(), // Placeholder widget when camera is not available
-            ),
+            body: Stack(children: [
+              AspectRatio(
+                aspectRatio: 8.6 / 15,
+                child: _controller.value.isInitialized
+                    ? CameraPreview(_controller)
+                    : Container(), // Placeholder widget when camera is not available
+              ),
+              if (_isRecording)
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: Row(
+                    children: [
+                      Icon(Icons.fiber_manual_record, color: Colors.red),
+                      Text(
+                        "Recording",
+                        style: TextStyle(color: Colors.red, fontSize: 18),
+                      ),
+                    ],
+                  ),
+                ),
+            ]),
             floatingActionButton: Container(
               decoration: BoxDecoration(
                   color: isLightTheme(context)
@@ -144,17 +160,20 @@ class CameraScreenState extends State<CameraScreen> {
                         _stopVideoRecording();
                       }
                     },
-                    child: FloatingActionButton(
-                      heroTag: 'button_camera',
-                      backgroundColor: kPrimary,
-                      child: _isImageCapturing
-                          ? const CircularProgressIndicator(
-                              color: Colors.black,
-                            )
-                          : const Icon(Icons.camera),
-                      onPressed: () async {
-                        if (!_isImageCapturing) _captureImage();
-                      },
+                    child: Transform.scale(
+                      scale: _isRecording ? 1.4 : 1.0,
+                      child: FloatingActionButton(
+                        heroTag: 'button_camera',
+                        backgroundColor: kPrimary,
+                        child: _isImageCapturing
+                            ? const CircularProgressIndicator(
+                                color: Colors.black,
+                              )
+                            : const Icon(Icons.camera),
+                        onPressed: () async {
+                          if (!_isImageCapturing) _captureImage();
+                        },
+                      ),
                     ),
                   ),
                   FloatingActionButton(

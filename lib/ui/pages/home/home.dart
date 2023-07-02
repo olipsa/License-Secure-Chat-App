@@ -15,7 +15,6 @@ import 'package:flutter_chat_app/ui/widgets/home/chats/chats.dart';
 import 'package:flutter_chat_app/ui/widgets/home/passphrase_display.dart';
 import 'package:flutter_chat_app/ui/widgets/home/qr/qr_code.dart';
 import 'package:flutter_chat_app/ui/widgets/shared/header_status.dart';
-import 'package:local_auth/local_auth.dart';
 
 class Home extends StatefulWidget {
   final User me;
@@ -31,7 +30,6 @@ class _HomeState extends State<Home>
     with AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
   late User _user;
   late IUserService _userService;
-  final LocalAuthentication _localAuthentication = LocalAuthentication();
 
   @override
   void initState() {
@@ -230,6 +228,7 @@ class _HomeState extends State<Home>
         print('App resumed');
         _user.lastseen = DateTime.now();
         _user.active = true;
+        await context.read<HomeCubit>().activeUsers(_user);
         await _userService.connect(_user);
         break;
       case AppLifecycleState.paused:
@@ -250,31 +249,5 @@ class _HomeState extends State<Home>
       default:
         break;
     }
-  }
-
-  _biometricAuth() async {
-    bool isAvailable = await _isBiometricAvailable();
-    if (isAvailable) {
-      bool isAuthenticated = await _authenticate();
-      if (isAuthenticated) {
-        // Navigate to another screen or perform a secure action
-      } else {
-        print('Authentication failed');
-      }
-    } else {
-      print('Biometric authentication is not available');
-    }
-  }
-
-  Future<bool> _isBiometricAvailable() async {
-    bool isAvailable = await _localAuthentication.canCheckBiometrics;
-    return isAvailable;
-  }
-
-  Future<bool> _authenticate() async {
-    bool isAuthenticated = await _localAuthentication.authenticate(
-      localizedReason: 'Please authenticate to proceed.',
-    );
-    return isAuthenticated;
   }
 }

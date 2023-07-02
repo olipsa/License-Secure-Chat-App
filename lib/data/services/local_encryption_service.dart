@@ -135,7 +135,9 @@ class LocalEncryptionService {
     if (message.contentType == ContentType.text) {
       // for text messages
       return await encryptMessageText(message);
-    } else if (message.contentType == ContentType.image) {
+    } else if (message.contentType == ContentType.image ||
+        message.contentType == ContentType.video ||
+        message.contentType == ContentType.voice) {
       // for image files
       return await encryptMessageFile(message);
     }
@@ -242,7 +244,9 @@ class LocalEncryptionService {
     if (message.contentType == ContentType.text) {
       // for text messages
       return await decryptMessageText(message);
-    } else if (message.contentType == ContentType.image) {
+    } else if (message.contentType == ContentType.image ||
+        message.contentType == ContentType.video ||
+        message.contentType == ContentType.voice) {
       // for image files; decrypt the file and it's description if it exists
       return await decryptMessageFile(message);
     }
@@ -262,9 +266,14 @@ class LocalEncryptionService {
         decryptedFileType = 'VID';
         extension = 'mp4';
         break;
+      case ContentType.voice:
+        decryptedFileType = 'AUDIO';
+        extension = 'aac';
+        break;
       default:
     }
     final directory = await getExternalStorageDirectory();
+    print(directory);
     List<FileSystemEntity> files = directory!.listSync();
     var dateFormat = DateFormat('yyyyMMdd').format(timestamp);
     var prefixTypeDate = '$decryptedFileType-$dateFormat';

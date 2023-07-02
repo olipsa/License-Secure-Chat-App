@@ -28,7 +28,7 @@ import 'package:flutter_chat_app/viewmodels/chat_view_model.dart';
 import 'package:flutter_chat_app/viewmodels/chats_view_model.dart';
 import 'package:rethink_db_ns/rethink_db_ns.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 
 class CompositionRoot {
   static late RethinkDb _r;
@@ -48,7 +48,7 @@ class CompositionRoot {
 
   static configure() async {
     _r = RethinkDb();
-    _connection = await _r.connect(host: '192.168.1.31', port: 28015);
+    _connection = await _r.connect(host: '192.168.0.188', port: 28015);
     _userService = UserService(r: _r, connection: _connection);
     _messageService = MessageService(_r, _connection);
     _typingNotification = TypingNotification(_r, _connection, _userService);
@@ -88,7 +88,7 @@ class CompositionRoot {
 
   static Widget composeOnboardingUi() {
     ImageUploader imageUploader =
-        ImageUploader('http://192.168.1.31:3000/upload');
+        ImageUploader('http://192.168.0.188:3000/upload');
     OnboardingCubit onboardingCubit = OnboardingCubit(_userService,
         imageUploader, _localCache, _remoteEncryptionService, _encryptedUser);
     ProfileImageCubit imageCubit = ProfileImageCubit();

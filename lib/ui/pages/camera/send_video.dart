@@ -7,6 +7,7 @@ import 'package:flutter_chat_app/colors.dart';
 import 'package:flutter_chat_app/states_management/message/message_bloc.dart';
 import 'package:flutter_chat_app/theme.dart';
 import 'package:flutter_chat_app/ui/pages/message_thread/message_thread_router.dart';
+import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:video_player/video_player.dart';
 
 class SendVideo extends StatefulWidget {
@@ -27,6 +28,8 @@ class SendVideo extends StatefulWidget {
 class _SendVideoState extends State<SendVideo> {
   final TextEditingController _textEditingController = TextEditingController();
   late VideoPlayerController _controller;
+  final RoundedLoadingButtonController _btnController =
+      RoundedLoadingButtonController();
   @override
   void initState() {
     super.initState();
@@ -75,9 +78,9 @@ class _SendVideoState extends State<SendVideo> {
                         margin: const EdgeInsets.all(8.0),
                         height: 45.0,
                         width: 45.0,
-                        child: RawMaterialButton(
-                          fillColor: kPrimary,
-                          shape: const CircleBorder(),
+                        child: RoundedLoadingButton(
+                          controller: _btnController,
+                          color: kPrimary,
                           elevation: 5.0,
                           child: const Icon(
                             Icons.send,
@@ -134,6 +137,8 @@ class _SendVideoState extends State<SendVideo> {
   _sendVideo() async {
     if (widget.videoPath == '') return;
 
+    _btnController.start();
+
     final videoBytes = await File(widget.videoPath).readAsBytes();
     final description = _textEditingController.text;
     Map<String, dynamic> videoWithDescription = {
@@ -151,6 +156,10 @@ class _SendVideoState extends State<SendVideo> {
     final sendMessageEvent = MessageEvent.onMessageSent(message);
     widget.messageBloc.add(sendMessageEvent);
     _textEditingController.clear();
+
+    _btnController.success();
+
+    await Future.delayed(Duration(seconds: 1));
     Navigator.pop(context);
     Navigator.pop(context);
   }
@@ -158,6 +167,7 @@ class _SendVideoState extends State<SendVideo> {
   @override
   void dispose() {
     _textEditingController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 }

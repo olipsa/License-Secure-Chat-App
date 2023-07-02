@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_app/colors.dart';
 import 'package:flutter_chat_app/models/local_message.dart';
 import 'package:flutter_chat_app/theme.dart';
+import 'package:flutter_chat_app/ui/widgets/message_thread/audio_player_widget.dart';
 import 'package:flutter_chat_app/ui/widgets/message_thread/full_screen_file.dart';
 import 'package:flutter_chat_app/ui/widgets/message_thread/video_thumbnail.dart';
 import 'package:intl/intl.dart';
@@ -132,6 +133,11 @@ class SenderMessage extends StatelessWidget {
               )));
     } else if (message.contentType == ContentType.video) {
       return Video(videoPath: message.filePath!);
+    } else if (message.contentType == ContentType.voice) {
+      return AudioPlayerWidget(
+        audioPath: message.filePath!,
+        boxColor: kPrimary,
+      );
     } else {
       return const SizedBox.shrink();
     }
